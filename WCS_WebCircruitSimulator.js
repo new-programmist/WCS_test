@@ -1,10 +1,10 @@
 class Draw {
 	static drawall(objects) {
+		objects.get(Connection).forEach((w) => drawWire(w.in.x,w.in.y,w.out.x,w.out.y,w.on) )
 		objects.get(Logic).forEach((l) => { 
 			eval('draw'+l.name.capitalize()+'('+l.x+','+l.y+','+l.outs[0].on+')');
 			(l.ins.concat(l.outs)).forEach((n) => drawNode(n.x,n.y,n.on))
 		});
-		objects.get(Connection).forEach((w) => drawWire(w.in.x,w.in.y,w.out.x,w.out.y,w.on) )
 	}
 } 
 String.prototype.capitalize = function() {
@@ -24,6 +24,14 @@ class MapWithDefault extends Map {
 }
 let objs = new MapWithDefault(() => []);
 let map = new Map()
+map.set('off',new MapWithDefault(() => []))
+map.get('off').set('nodes',[[0,0]])
+map.get('off').set('code',() => [false])
+map.get('off').set('ins', 0)
+map.set('on',new MapWithDefault(() => []))
+map.get('on').set('nodes',[[0,0]])
+map.get('on').set('code',() => [true])
+map.get('on').set('ins', 0)
 map.set('buff',new MapWithDefault(() => []))
 map.get('buff').set('nodes',[[71,40],[187,40]])
 map.get('buff').set('code',(a) => [a])
@@ -75,10 +83,10 @@ class Logic {
                 this.vars = new MapWithDefault(() => false);
 		this.ins = Array.from({
 			length: ins
-		}, () => {i++;return new Node(name+objs.get(this.constructor).length+'_input'+(i),map.get(name).get('nodes')[i][0],map.get(name).get('nodes')[i][1]) });
+		}, () => {i++;return new Node(name+objs.get(this.constructor).length+'_input'+(i),x+map.get(name).get('nodes')[i][0],y+map.get(name).get('nodes')[i][1]) });
 		this.outs = Array.from({
 			length: outs
-		}, () => {i++;return new Node(name+objs.get(this.constructor).length+'_output'+(i-this.ins.length),map.get(name).get('nodes')[i][0],map.get(name).get('nodes')[i][1]) });
+		}, () => {i++;return new Node(name+objs.get(this.constructor).length+'_output'+(i-this.ins.length),x+map.get(name).get('nodes')[i][0],y+map.get(name).get('nodes')[i][1]) });
 		this.x = x;
 		this.y = y;
 		this.block = code;
@@ -123,15 +131,17 @@ class Circruit {
 		save(); // TODO: Replace By Parsing
 	}
 	tick() {
-		objs.get(this).get(Logic).forEach(_1 => _1.tick());
+		for (let time = Date.now();(Date.now() - time) < 17;time = time){
+			objs.get(this).get(Logic).forEach(_1 => _1.tick());
+			const visited = new MapWithDefault(() => false);
+			objs.get(this).get(Connection).forEach(con => {
+				if (visited.get(con)) return;
+				const connected_cons = new MapWithDefault(() => false);
+				const is_on = this.collect_connected_cons(con, connected_cons, visited);
+				connected_cons.forEach((_, k) => k.on = is_on);
+			});
+		}
 		const nodes = objs.get(this).get(Node).map((n) => n.on);
-		const visited = new MapWithDefault(() => false);
-		objs.get(this).get(Connection).forEach(con => {
-			if (visited.get(con)) return;
-			const connected_cons = new MapWithDefault(() => false);
-			const is_on = this.collect_connected_cons(con, connected_cons, visited);
-			connected_cons.forEach((_, k) => k.on = is_on);
-		});
 		objs.get(this).get(Node).forEach((a) => a.on = a.on || a.onConnected())
 		this.draw();
 		objs.get(this).get(Node).forEach((a, i) => a.on = nodes[i])
@@ -153,18 +163,21 @@ class Circruit {
 	}
 }
 c1 = new Circruit(() => {
-        new Logic('or')
+        new Logic('nand',20,20)
+        new Logic('on',140,140)
+        new Connection(objs.get(Node)[0],objs.get(Node)[3])
+        new Connection(objs.get(Node)[1],objs.get(Node)[2])
 });
-t = Date.now()
-for (let i = 0;i < 10;i++){
-        c1.tick()
-}
-console.log(Date.now() - t)
-console.log("Nodes:")
-objs.get(c1).get(Node).forEach((x, i) =>
-	console.log(i, x.on)
-);
-console.log("Connections:")
-objs.get(c1).get(Connection).forEach((x, i) =>
-	console.log(i, x.on)
-);
+
+//for (let i =0; i < 100; i++) {
+//	setInterval(c1.tick(), 100);
+//}
+
+(function loop() {
+  setTimeout(() => {
+    setInterval(c1.tick(), 16);
+
+    loop();
+  }, 0);
+})();
+

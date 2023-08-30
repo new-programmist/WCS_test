@@ -41,13 +41,16 @@
     }
     function drawNode(/*ctx,*/ x, y, on) {
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, 2 * Math.PI);
+      ctx.arc(x, y, 4.5, 0, 2 * Math.PI);
       ctx.fillStyle = on ? "#FF0000" : "#000000";
       ctx.fill();
-      ctx.stroke();
+      ctx.beginPath();
     }
-
-    function drawOr(/*ctx,*/ x, y, on) {
+    function drawOn(/*ctx, */x, y, on) {
+    }
+    function drawOff(/*ctx, */x, y, on) {
+    }
+    function drawOr(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -66,7 +69,7 @@
       ctx.stroke();
     }
 
-    function drawNor(ctx, x, y, on) {
+    function drawNor(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -91,7 +94,7 @@
       ctx.stroke();
     } // [[70, 33], [70, 47], [187, 40]]
 
-    function drawAnd(ctx, x, y, on) {
+    function drawAnd(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -110,7 +113,7 @@
       ctx.stroke();
     }
 
-    function drawXor(ctx, x, y, on) {
+    function drawXor(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -134,7 +137,7 @@
       ctx.stroke();
     }
 
-    function drawNand(ctx, x, y, on) {
+    function drawNand(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -159,7 +162,7 @@
       ctx.stroke();
     }
 
-    function drawXnor(ctx, x, y, on) {
+    function drawXnor(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -189,7 +192,7 @@
       ctx.stroke();
     }
 
-    function drawBuff(ctx, x, y, on) {
+    function drawBuff(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -205,7 +208,7 @@
       ctx.stroke();
     }
 
-    function drawNot(ctx, x, y, on) {
+    function drawNot(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -245,7 +248,7 @@
     notX = 200;
     notY = 50;
 
-    //drawWire(ctx, orX + 187, orY + 40, norX + 71, norY + 32)
+    //drawWire(/*ctx, */orX + 187, orY + 40, norX + 71, norY + 32)
   </script>
   <script src="WCS_WebCircruitSimulator.js"></script>
 
