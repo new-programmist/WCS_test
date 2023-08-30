@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+  <style type="text/css">
+    @media print {
+      .TridactylStatusIndicator {
+        display: none !important;
+      }
+    }
+  </style>
+</head><iframe class="cleanslate hidden" src="LogicCircruitSimulatorWebVersion_LCSWV_files/commandline.html" id="cmdline_iframe" loading="lazy" style="height: 0px !important;"></iframe>
+
+<body>
+
+  <canvas id="myCanvas" width="600" height="400" style="border:1px solid #d3d3d3;">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+  
+  <script>
+    var c = document.getElementById("myCanvas");
+    var ctx = c.getContext("2d");
+
+    function drawWire(/*ctx,*/ x1, y1, x2, y2, on) {
+      const dx = Math.abs(x1 - x2)
+      const dy = Math.abs(y1 - y2)
+
+      const points = [
+        [(dx > dy) ? (x1 + x2) / 2 : x1, (dx > dy) ? y1 : (y1 + y2) / 2],
+        [(dx > dy) ? (x1 + x2) / 2 : x2, (dx > dy) ? y2 : (y1 + y2) / 2],
+        [x2, y2],
+      ]
+
+      
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      points.forEach(([x, y]) => ctx.lineTo(x, y))
+      ctx.stroke();
+
+    }
+    function drawNode(/*ctx,*/ x, y, on) {
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, 2 * Math.PI);
+      ctx.fillStyle = on ? "#FF0000" : "#000000";
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function drawOr(/*ctx,*/ x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(100 + x, 20 + y);
+      ctx.arcTo(150 + x, 20 + y, 150 + x, 40 + y, 20);
+      ctx.arcTo(150 + x, 60 + y, 130 + x, 60 + y, 20);
+      ctx.lineTo(100 + x, 60 + y);
+      ctx.arcTo(120 + x, 40 + y, 100 + x, 20 + y, 29);
+      ctx.fill();
+      ctx.moveTo(107 + x, 33 + y);
+      ctx.lineTo(70 + x, 33 + y);
+      ctx.moveTo(107 + x, 47 + y);
+      ctx.lineTo(70 + x, 47 + y);
+      ctx.moveTo(187 + x, 40 + y);
+      ctx.lineTo(150 + x, 40 + y);
+      ctx.stroke();
+    }
+
+    function drawNor(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(100 + x, 20 + y);
+      ctx.arcTo(150 + x, 20 + y, 150 + x, 40 + y, 20);
+      ctx.arcTo(150 + x, 60 + y, 130 + x, 60 + y, 20);
+      ctx.lineTo(100 + x, 60 + y);
+      ctx.arcTo(120 + x, 40 + y, 100 + x, 20 + y, 29);
+      ctx.fill();
+      ctx.moveTo(107 + x, 33 + y);
+      ctx.lineTo(70 + x, 33 + y);
+      ctx.moveTo(107 + x, 47 + y);
+      ctx.lineTo(70 + x, 47 + y);
+      ctx.moveTo(187 + x, 40 + y);
+      ctx.lineTo(150 + x, 40 + y);
+      ctx.stroke();
+      ctx.moveTo(150 + x, 40 + y);
+      ctx.beginPath();
+      ctx.arc(150 + x, 40 + y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+    } // [[70, 33], [70, 47], [187, 40]]
+
+    function drawAnd(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(100 + x, (20 + y));
+      ctx.arcTo((150 + x), (20 + y), (150 + x), (40 + y), 20);
+      ctx.arcTo((150 + x), (60 + y), (130 + x), (60 + y), 20);
+      ctx.lineTo((100 + x), (60 + y));
+      ctx.lineTo((100 + x), (20 + y));
+      ctx.fill();
+      ctx.moveTo((100 + x), (33 + y));
+      ctx.lineTo((70 + x), (33 + y));
+      ctx.moveTo((100 + x), (47 + y));
+      ctx.lineTo((70 + x), (47 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+    }
+
+    function drawXor(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo((92 + x), (20 + y));
+      ctx.lineTo((100 + x), (20 + y));
+      ctx.arcTo((150 + x), (20 + y), (150 + x), (40 + y), 20);
+      ctx.arcTo((150 + x), (60 + y), (130 + x), (60 + y), 20);
+      ctx.lineTo((100 + x), (60 + y));
+      ctx.arcTo((120 + x), (40 + y), (100 + x), (20 + y), 29);
+      ctx.fill();
+      ctx.moveTo((100 + x), (60 + y));
+      ctx.lineTo((92 + x), (60 + y));
+      ctx.moveTo((94 + x), (58 + y));
+      ctx.arcTo((112 + x), (40 + y), (94 + x), (22 + y), 29);
+      ctx.moveTo((99 + x), (33 + y));
+      ctx.lineTo((70 + x), (33 + y));
+      ctx.moveTo((99 + x), (47 + y));
+      ctx.lineTo((70 + x), (47 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+    }
+
+    function drawNand(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(100 + x, (20 + y));
+      ctx.arcTo((150 + x), (20 + y), (150 + x), (40 + y), 20);
+      ctx.arcTo((150 + x), (60 + y), (130 + x), (60 + y), 20);
+      ctx.lineTo((100 + x), (60 + y));
+      ctx.lineTo((100 + x), (20 + y));
+      ctx.fill();
+      ctx.moveTo((100 + x), (33 + y));
+      ctx.lineTo((70 + x), (33 + y));
+      ctx.moveTo((100 + x), (47 + y));
+      ctx.lineTo((70 + x), (47 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+      ctx.moveTo(150 + x, 40 + y);
+      ctx.beginPath();
+      ctx.arc(150 + x, 40 + y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function drawXnor(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo((92 + x), (20 + y));
+      ctx.lineTo((100 + x), (20 + y));
+      ctx.arcTo((150 + x), (20 + y), (150 + x), (40 + y), 20);
+      ctx.arcTo((150 + x), (60 + y), (130 + x), (60 + y), 20);
+      ctx.lineTo((100 + x), (60 + y));
+      ctx.arcTo((120 + x), (40 + y), (100 + x), (20 + y), 29);
+      ctx.fill();
+      ctx.moveTo((100 + x), (60 + y));
+      ctx.lineTo((92 + x), (60 + y));
+      ctx.moveTo((94 + x), (58 + y));
+      ctx.arcTo((112 + x), (40 + y), (94 + x), (22 + y), 29);
+      ctx.moveTo((99 + x), (33 + y));
+      ctx.lineTo((70 + x), (33 + y));
+      ctx.moveTo((99 + x), (47 + y));
+      ctx.lineTo((70 + x), (47 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+      ctx.moveTo(150 + x, 40 + y);
+      ctx.beginPath();
+      ctx.arc(150 + x, 40 + y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    function drawBuff(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo((99 + x), (20 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.lineTo((99 + x), (60 + y));
+      ctx.lineTo((99 + x), (20 + y));
+      ctx.fill();
+      ctx.moveTo((99 + x), (40 + y));
+      ctx.lineTo((70 + x), (40 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+    }
+
+    function drawNot(ctx, x, y, on) {
+      ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo((99 + x), (20 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.lineTo((99 + x), (60 + y));
+      ctx.lineTo((99 + x), (20 + y));
+      ctx.fill();
+      ctx.moveTo((99 + x), (40 + y));
+      ctx.lineTo((70 + x), (40 + y));
+      ctx.moveTo((187 + x), (40 + y));
+      ctx.lineTo((150 + x), (40 + y));
+      ctx.stroke();
+      ctx.moveTo(150 + x, 40 + y);
+      ctx.beginPath();
+      ctx.arc(150 + x, 40 + y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.fill();
+      ctx.stroke();
+    }
+
+
+    orX = 0;
+    orY = 0;
+    norX = 200;
+    norY = 100;
+    andX = 350;
+    andY = 0;
+    xorX = 200;
+    xorY = 200;
+    nandX = 0;
+    nandY = 100;
+    xnorX = 200;
+    xnorY = 0;
+    buffX = 50;
+    buffY = 50;
+    notX = 200;
+    notY = 50;
+
+    //drawWire(ctx, orX + 187, orY + 40, norX + 71, norY + 32)
+  </script>
+  <script src="WCS_WebCircruitSimulator.js"></script>
+
+  <span class="cleanslate TridactylStatusIndicator  TridactylModenormal ">normal</span>
+</body>
+
+</html>
