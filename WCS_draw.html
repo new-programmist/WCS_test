@@ -31,12 +31,14 @@
         [x2, y2],
       ]
 
-      
-
+      if(on) {
+        ctx.strokeStyle = '#ff0000';
+      }
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       points.forEach(([x, y]) => ctx.lineTo(x, y))
       ctx.stroke();
+      ctx.strokeStyle = '#000000';
 
     }
     function drawNode(/*ctx,*/ x, y, on) {
@@ -46,9 +48,9 @@
       ctx.fill();
       ctx.beginPath();
     }
-    function drawOn(/*ctx, */x, y, on) {
+    function drawOn(/*ctx, */x, y) {
     }
-    function drawOff(/*ctx, */x, y, on) {
+    function drawOff(/*ctx, */x, y) {
     }
     function drawOr(/*ctx, */x, y, on) {
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");

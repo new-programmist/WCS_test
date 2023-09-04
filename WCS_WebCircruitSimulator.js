@@ -1,32 +1,13 @@
-(function() {
-    if ( typeof Object.id != "undefined" ) return;
 
-    var id = 0;
 
-    Object.id = function(o) {
-        if ( typeof o.__uniqueid != "undefined" ) {
-            return o.__uniqueid;
-        }
-
-        Object.defineProperty(o, "__uniqueid", {
-            value: ++id,
-            enumerable: false,
-            // This could go either way, depending on your 
-            // interpretation of what an "id" is
-            writable: false
-        });
-
-        return o.__uniqueid;
-    };
-})();
-
-const period = 333 // ms
+const period = 200 // ms
+const ticks_per_draw = 1
 
 class Draw {
 	static drawall(objects) {
 		objects.get(Connection).forEach((w) => drawWire(w.in.x,w.in.y,w.out.x,w.out.y,w.on) )
 		objects.get(Logic).forEach((l) => { 
-			eval('draw'+l.name.capitalize()+'('+l.x+','+l.y+','+l.outs[0].on+')');
+			eval('draw'+l.name.capitalize()+'('+l.x+','+l.y+','+l.draw_type+')');
 			(l.ins.concat(l.outs)).forEach((n) => drawNode(n.x,n.y,n.on || n.onConnected()))
 		});
 	}
@@ -51,43 +32,43 @@ let objs2 = null
 let map = new Map()
 map.set('off',new MapWithDefault(() => []))
 map.get('off').set('nodes',[[0,0]])
-map.get('off').set('code',() => [false])
+map.get('off').set('code',() => [[false],[]])
 map.get('off').set('ins', 0)
 map.set('on',new MapWithDefault(() => []))
 map.get('on').set('nodes',[[0,0]])
-map.get('on').set('code',() => [true])
+map.get('on').set('code',() => [[true],[]])
 map.get('on').set('ins', 0)
 map.set('buff',new MapWithDefault(() => []))
 map.get('buff').set('nodes',[[71,40],[187,40]])
-map.get('buff').set('code',(a) => [a])
+map.get('buff').set('code',(a) => [[a],[a]])
 map.get('buff').set('ins', 1)
 map.set('not',new MapWithDefault(() => []))
 map.get('not').set('nodes',[[71,40],[187,40]])
-map.get('not').set('code',(a) => [!a])
+map.get('not').set('code',(a) => [[!a],[!a]])
 map.get('not').set('ins', 1)
 map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('or').set('code',(a,b) => [a || b])
+map.get('or').set('code',(a,b) => [[a || b],[a || b]])
 map.get('or').set('ins', 2)
 map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('nor').set('code',(a,b) => [!(a || b)])
+map.get('nor').set('code',(a,b) => [[!(a || b)],[!(a || b)]])
 map.get('nor').set('ins', 2)
 map.set('and', new MapWithDefault(() => []))
 map.get('and').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('and').set('code',(a,b) => [a && b])
+map.get('and').set('code',(a,b) => [[a && b],[a && b]])
 map.get('and').set('ins', 2)
 map.set('nand', new MapWithDefault(() => []))
 map.get('nand').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('nand').set('code',(a,b) => [!(a && b)])
+map.get('nand').set('code',(a,b) => [[!(a && b)],[!(a && b)]])
 map.get('nand').set('ins', 2)
 map.set('xor', new MapWithDefault(() => []))
 map.get('xor').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('xor').set('code',(a,b) => [(a ^ b) == 1])
+map.get('xor').set('code',(a,b) => [[(a ^ b) == 1],[(a ^ b) == 1]])
 map.get('xor').set('ins', 2)
 map.set('xnor', new MapWithDefault(() => []))
 map.get('xnor').set('nodes',[[71,33],[71,47],[187,40]])
-map.get('xnor').set('code',(a,b) => [(a ^ b) == 0])
+map.get('xnor').set('code',(a,b) => [[(a ^ b) == 0],[(a ^ b) == 0]])
 map.get('xnor').set('ins', 2)
 class Connection {
 	constructor(cir, node1, node2) {
@@ -116,13 +97,15 @@ class Logic {
 		this.block = code;
 		this.tick()
 		objs2.get(this.constructor).push(this);
+		this.draw_type = []
 		cir.tick();
 		}
 	tick() {
 		const out = this.block(...this.ins.map(inNode => inNode.onConnected()), this.vars);
 		for (const [i, outNode] of this.outs.entries()) {
-			outNode.on = out[i];
+			outNode.on = out[0][i];
 		}
+		this.draw_type = out[1]
 	}
 }
 class Node {
@@ -221,13 +204,23 @@ c1 = new Circruit((cir) => {
 		new Connection(cir, objs2.get(Node)[28],objs2.get(Node)[29])
 		new Connection(cir, objs2.get(Node)[3],objs2.get(Node)[31])
 		new Connection(cir, objs2.get(Node)[10],objs2.get(Node)[28])
+		new Logic(cir, 'not',0,800)
+		new Logic(cir, 'buff',220,800)
+		new Logic(cir, 'buff',440,800)
+		new Logic(cir, 'buff',660,800)
+		new Connection(cir, objs2.get(Node)[33],objs2.get(Node)[34])
+		new Connection(cir, objs2.get(Node)[35],objs2.get(Node)[36])
+		new Connection(cir, objs2.get(Node)[37],objs2.get(Node)[38])
+		new Connection(cir, objs2.get(Node)[39],objs2.get(Node)[32])
+		new Connection(cir, objs2.get(Node)[32],objs2.get(Node)[18])
+
 });
 
 let lastTime = performance.now();
 
 function loop(timeStamp) {
   lastTime = timeStamp;
-  c1.tick();
+  c1.tick(ticks_per_draw);
   elapsedTime = timeStamp - lastTime;
   setTimeout(() => window.requestAnimationFrame(loop), period - elapsedTime);
 };
