@@ -1,6 +1,6 @@
 
 
-const period = 200 // ms
+const period = 20 // ms
 const ticks_per_draw = 1
 
 class Draw {
@@ -95,9 +95,9 @@ class Logic {
 		this.x = x;
 		this.y = y;
 		this.block = code;
+		this.draw_type = []
 		this.tick()
 		objs2.get(this.constructor).push(this);
-		this.draw_type = []
 		cir.tick();
 		}
 	tick() {
@@ -208,10 +208,18 @@ c1 = new Circruit((cir) => {
 		new Logic(cir, 'buff',220,800)
 		new Logic(cir, 'buff',440,800)
 		new Logic(cir, 'buff',660,800)
+		new Logic(cir, 'buff',0,900)
+		new Logic(cir, 'buff',220,900)
+		new Logic(cir, 'buff',440,900)
+		new Logic(cir, 'buff',660,900)
 		new Connection(cir, objs2.get(Node)[33],objs2.get(Node)[34])
 		new Connection(cir, objs2.get(Node)[35],objs2.get(Node)[36])
 		new Connection(cir, objs2.get(Node)[37],objs2.get(Node)[38])
-		new Connection(cir, objs2.get(Node)[39],objs2.get(Node)[32])
+		new Connection(cir, objs2.get(Node)[39],objs2.get(Node)[40])
+		new Connection(cir, objs2.get(Node)[41],objs2.get(Node)[42])
+		new Connection(cir, objs2.get(Node)[43],objs2.get(Node)[44])
+		new Connection(cir, objs2.get(Node)[45],objs2.get(Node)[46])
+		new Connection(cir, objs2.get(Node)[47],objs2.get(Node)[32])
 		new Connection(cir, objs2.get(Node)[32],objs2.get(Node)[18])
 
 });
