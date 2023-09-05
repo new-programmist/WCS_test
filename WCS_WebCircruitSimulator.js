@@ -145,12 +145,12 @@ class Circruit {
   tick(n = 1) {
     for (let time = Date.now(), tick = 0; tick < n && (Date.now() - time) <= period; tick++) {
       objs.get(this).get(Logic).forEach(_1 => _1.tick());
-      const visited = new MapWithDefault(() => false);
+      const visited = new Set();
       objs.get(this).get(Connection).forEach(con => {
-        if (visited.get(con)) return;
-        const connected_cons = new MapWithDefault(() => false);
+        if (visited.has(con)) return;
+        const connected_cons = new Set();
         const is_on = this.collect_connected_cons(con, connected_cons, visited);
-        connected_cons.forEach((_, k) => k.on = is_on);
+        connected_cons.forEach((c) => c.on = is_on);
       });
     }
     this.draw();
@@ -161,10 +161,10 @@ class Circruit {
   collect_connected_cons(con, connected_cons, visited) {
     const cons = con.in.connected.concat(con.out.connected);
     let is_on = con.in.on || con.out.on;
-    if (!connected_cons.get(con)) {
+    if (!connected_cons.has(con)) {
       cons.forEach(x => {
-        connected_cons.set(x, true);
-        visited.set(x, true);
+        connected_cons.add(x);
+        visited.add(x);
         is_on ||= this.collect_connected_cons(x, connected_cons, visited);
       });
     }
