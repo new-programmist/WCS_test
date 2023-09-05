@@ -162,10 +162,10 @@ class Circruit {
     const cons = con.in.connected.concat(con.out.connected);
     let is_on = con.in.on || con.out.on;
     if (!connected_cons.has(con)) {
+      connected_cons.add(con);
+      visited.add(con);
       cons.forEach(x => {
-        connected_cons.add(x);
-        visited.add(x);
-        is_on ||= this.collect_connected_cons(x, connected_cons, visited);
+        is_on = this.collect_connected_cons(x, connected_cons, visited) || is_on;
       });
     }
     return is_on;
