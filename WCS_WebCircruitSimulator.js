@@ -48,6 +48,7 @@ map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('or').set('code', (a, b) => [[a || b], [a || b]])
 map.get('or').set('ins', 2)
+map.get('or').set('path', drawOr(0, 0, 0))
 map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nor').set('code', (a, b) => [[!(a || b)], [!(a || b)]])
@@ -80,6 +81,7 @@ class Connection {
     cir.tick();
   }
 }
+
 class Logic {
   constructor(cir, name = '', x = 0, y = 0, ins = map.get(name).get('ins'), outs = map.get(name).get('nodes').length - map.get(name).get('ins'), code = map.get(name).get('code')) {
     let i = -1
@@ -99,12 +101,17 @@ class Logic {
     objs2.get(this.constructor).push(this);
     cir.tick();
   }
+
   tick() {
     const out = this.block(...this.ins.map(inNode => inNode.onConnected()), this.vars);
     for (const [i, outNode] of this.outs.entries()) {
       outNode.on = out[0][i];
     }
     this.draw_type = out[1]
+  }
+
+  clicked(x, y) {
+    return ctx.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
   }
 }
 
@@ -176,77 +183,81 @@ class Circruit {
 }
 
 c1 = new Circruit((cir) => {
-  new Logic(cir, 'not', 0, 0)
-  new Connection(cir, objs2.get(Node)[0], objs2.get(Node)[1])
-  new Logic(cir, 'xor', 200, 0)
-  new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[3])
-  new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[4])
-  new Logic(cir, 'and', 200, 40)
-  new Connection(cir, objs2.get(Node)[3], objs2.get(Node)[5])
-  new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[6])
-  new Logic(cir, 'xor', 400, 0)
-  new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[9])
-  new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[10])
-  new Logic(cir, 'and', 400, 40)
-  new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[11])
-  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[12])
-  new Logic(cir, 'xor', 600, 0)
-  new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[15])
-  new Connection(cir, objs2.get(Node)[14], objs2.get(Node)[16])
-  new Logic(cir, 'and', 600, 40)
-  new Connection(cir, objs2.get(Node)[15], objs2.get(Node)[17])
-  new Connection(cir, objs2.get(Node)[16], objs2.get(Node)[18])
-  new Logic(cir, 'xor', 800, 0)
-  new Connection(cir, objs2.get(Node)[19], objs2.get(Node)[21])
-  new Connection(cir, objs2.get(Node)[20], objs2.get(Node)[22])
-  new Logic(cir, 'and', 800, 40)
-  new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[23])
-  new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[24])
-  new Logic(cir, 'xor', 000, 80)
-  new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[27])
-  new Connection(cir, objs2.get(Node)[26], objs2.get(Node)[28])
-  new Logic(cir, 'and', 000, 120)
-  new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[29])
-  new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[30])
-  new Logic(cir, 'xor', 200, 80)
-  new Connection(cir, objs2.get(Node)[31], objs2.get(Node)[33])
-  new Connection(cir, objs2.get(Node)[32], objs2.get(Node)[34])
-  new Logic(cir, 'and', 200, 120)
-  new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[35])
-  new Connection(cir, objs2.get(Node)[34], objs2.get(Node)[36])
-  new Logic(cir, 'xor', 400, 80)
-  new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[39])
-  new Connection(cir, objs2.get(Node)[38], objs2.get(Node)[40])
-  new Logic(cir, 'and', 400, 120)
-  new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[41])
-  new Connection(cir, objs2.get(Node)[40], objs2.get(Node)[42])
-  new Logic(cir, 'xor', 600, 80)
-  new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[45])
-  new Connection(cir, objs2.get(Node)[44], objs2.get(Node)[46])
-  new Logic(cir, 'and', 600, 120)
-  new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[47])
-  new Connection(cir, objs2.get(Node)[46], objs2.get(Node)[48])
-  new Logic(cir, 'xor', 800, 80)
-  new Connection(cir, objs2.get(Node)[49], objs2.get(Node)[51])
-  new Connection(cir, objs2.get(Node)[50], objs2.get(Node)[52])
-  new Logic(cir, 'and', 800, 120)
-  new Connection(cir, objs2.get(Node)[51], objs2.get(Node)[53])
-  new Connection(cir, objs2.get(Node)[52], objs2.get(Node)[54])
-  new Logic(cir, 'xor', 000, 160)
-  new Connection(cir, objs2.get(Node)[55], objs2.get(Node)[57])
-  new Connection(cir, objs2.get(Node)[56], objs2.get(Node)[58])
-  new Logic(cir, 'and', 000, 200)
-  new Connection(cir, objs2.get(Node)[57], objs2.get(Node)[59])
-  new Connection(cir, objs2.get(Node)[58], objs2.get(Node)[60])
-  new Logic(cir, 'xor', 200, 160)
-  new Connection(cir, objs2.get(Node)[61], objs2.get(Node)[63])
-  new Connection(cir, objs2.get(Node)[62], objs2.get(Node)[64])
-  new Logic(cir, 'and', 200, 200)
-  new Connection(cir, objs2.get(Node)[63], objs2.get(Node)[65])
-  new Connection(cir, objs2.get(Node)[64], objs2.get(Node)[66])
+  new Logic(cir, 'or', 0, 0)
+  new Logic(cir, 'or', 0, 100)
+  //new Logic(cir, 'not', 0, 0)
+  //new Connection(cir, objs2.get(Node)[0], objs2.get(Node)[1])
+  //new Logic(cir, 'xor', 200, 0)
+  //new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[3])
+  //new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[4])
+  //new Logic(cir, 'and', 200, 40)
+  //new Connection(cir, objs2.get(Node)[3], objs2.get(Node)[5])
+  //new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[6])
+  //new Logic(cir, 'xor', 400, 0)
+  //new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[9])
+  //new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[10])
+  //new Logic(cir, 'and', 400, 40)
+  //new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[11])
+  //new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[12])
+  //new Logic(cir, 'xor', 600, 0)
+  //new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[15])
+  //new Connection(cir, objs2.get(Node)[14], objs2.get(Node)[16])
+  //new Logic(cir, 'and', 600, 40)
+  //new Connection(cir, objs2.get(Node)[15], objs2.get(Node)[17])
+  //new Connection(cir, objs2.get(Node)[16], objs2.get(Node)[18])
+  //new Logic(cir, 'xor', 800, 0)
+  //new Connection(cir, objs2.get(Node)[19], objs2.get(Node)[21])
+  //new Connection(cir, objs2.get(Node)[20], objs2.get(Node)[22])
+  //new Logic(cir, 'and', 800, 40)
+  //new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[23])
+  //new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[24])
+  //new Logic(cir, 'xor', 000, 80)
+  //new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[27])
+  //new Connection(cir, objs2.get(Node)[26], objs2.get(Node)[28])
+  //new Logic(cir, 'and', 000, 120)
+  //new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[29])
+  //new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[30])
+  //new Logic(cir, 'xor', 200, 80)
+  //new Connection(cir, objs2.get(Node)[31], objs2.get(Node)[33])
+  //new Connection(cir, objs2.get(Node)[32], objs2.get(Node)[34])
+  //new Logic(cir, 'and', 200, 120)
+  //new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[35])
+  //new Connection(cir, objs2.get(Node)[34], objs2.get(Node)[36])
+  //new Logic(cir, 'xor', 400, 80)
+  //new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[39])
+  //new Connection(cir, objs2.get(Node)[38], objs2.get(Node)[40])
+  //new Logic(cir, 'and', 400, 120)
+  //new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[41])
+  //new Connection(cir, objs2.get(Node)[40], objs2.get(Node)[42])
+  //new Logic(cir, 'xor', 600, 80)
+  //new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[45])
+  //new Connection(cir, objs2.get(Node)[44], objs2.get(Node)[46])
+  //new Logic(cir, 'and', 600, 120)
+  //new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[47])
+  //new Connection(cir, objs2.get(Node)[46], objs2.get(Node)[48])
+  //new Logic(cir, 'xor', 800, 80)
+  //new Connection(cir, objs2.get(Node)[49], objs2.get(Node)[51])
+  //new Connection(cir, objs2.get(Node)[50], objs2.get(Node)[52])
+  //new Logic(cir, 'and', 800, 120)
+  //new Connection(cir, objs2.get(Node)[51], objs2.get(Node)[53])
+  //new Connection(cir, objs2.get(Node)[52], objs2.get(Node)[54])
+  //new Logic(cir, 'xor', 000, 160)
+  //new Connection(cir, objs2.get(Node)[55], objs2.get(Node)[57])
+  //new Connection(cir, objs2.get(Node)[56], objs2.get(Node)[58])
+  //new Logic(cir, 'and', 000, 200)
+  //new Connection(cir, objs2.get(Node)[57], objs2.get(Node)[59])
+  //new Connection(cir, objs2.get(Node)[58], objs2.get(Node)[60])
+  //new Logic(cir, 'xor', 200, 160)
+  //new Connection(cir, objs2.get(Node)[61], objs2.get(Node)[63])
+  //new Connection(cir, objs2.get(Node)[62], objs2.get(Node)[64])
+  //new Logic(cir, 'and', 200, 200)
+  //new Connection(cir, objs2.get(Node)[63], objs2.get(Node)[65])
+  //new Connection(cir, objs2.get(Node)[64], objs2.get(Node)[66])
 });
 
 let lastTime = performance.now();
+let x = 0;
+let y = 0;
 
 function loop(timeStamp) {
   lastTime = timeStamp;
@@ -255,4 +266,44 @@ function loop(timeStamp) {
   setTimeout(() => window.requestAnimationFrame(loop), period - elapsedTime);
 };
 
+var mousedownID = -1;
+var clicked_id = -1;
+
+function mousedown(event) {
+  els = objs.get(c1).get(Logic)
+  els.forEach((l, i) => {
+    if (l.clicked(event.clientX, event.clientY)) {
+      clicked_id = i;
+    }
+  })
+  els.push(els[clicked_id]);
+  els.splice(clicked_id, 1);
+  clicked_id = els.length - 1;
+  if (mousedownID == -1 && clicked_id != -1) {
+    whilemousedown();
+    mousedownID = setInterval(whilemousedown, 16);
+  }
+}
+
+function mouseup(event) {
+  if (mousedownID != -1) {
+    clearInterval(mousedownID);
+    mousedownID = -1;
+  }
+
+}
+
+function mousemove(event) {
+  x = event.clientX
+  y = event.clientY
+}
+
+function whilemousedown() {
+  els = objs.get(c1).get(Logic)
+  els[clicked_id].x = x;
+  els[clicked_id].y = y;
+}
+c.addEventListener("mousedown", mousedown);
+c.addEventListener("mouseup", mouseup);
+c.addEventListener("mousemove", mousemove);
 window.requestAnimationFrame(loop);

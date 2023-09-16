@@ -53,22 +53,24 @@
     function drawOff(/*ctx, */x, y) {
     }
     function drawOr(/*ctx, */x, y, on) {
+      const path = new Path2D();
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
       ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(100 + x, 20 + y);
-      ctx.arcTo(150 + x, 20 + y, 150 + x, 40 + y, 20);
-      ctx.arcTo(150 + x, 60 + y, 130 + x, 60 + y, 20);
-      ctx.lineTo(100 + x, 60 + y);
-      ctx.arcTo(120 + x, 40 + y, 100 + x, 20 + y, 29);
-      ctx.fill();
-      ctx.moveTo(107 + x, 33 + y);
-      ctx.lineTo(70 + x, 33 + y);
-      ctx.moveTo(107 + x, 47 + y);
-      ctx.lineTo(70 + x, 47 + y);
-      ctx.moveTo(187 + x, 40 + y);
-      ctx.lineTo(150 + x, 40 + y);
-      ctx.stroke();
+      //ctx.beginPath();
+      path.moveTo(100 + x, 20 + y);
+      path.arcTo(150 + x, 20 + y, 150 + x, 40 + y, 20);
+      path.arcTo(150 + x, 60 + y, 130 + x, 60 + y, 20);
+      path.lineTo(100 + x, 60 + y);
+      path.arcTo(120 + x, 40 + y, 100 + x, 20 + y, 29);
+      ctx.fill(path);
+      path.moveTo(107 + x, 33 + y);
+      path.lineTo(70 + x, 33 + y);
+      path.moveTo(107 + x, 47 + y);
+      path.lineTo(70 + x, 47 + y);
+      path.moveTo(187 + x, 40 + y);
+      path.lineTo(150 + x, 40 + y);
+      ctx.stroke(path);
+      return path;
     }
 
     function drawNor(/*ctx, */x, y, on) {
