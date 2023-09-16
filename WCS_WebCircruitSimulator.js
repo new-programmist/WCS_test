@@ -111,7 +111,8 @@ class Logic {
   }
 
   clicked(x, y) {
-    return ctx.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
+    const ret = ctx.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
+    return ret;
   }
 }
 
@@ -270,16 +271,18 @@ var mousedownID = -1;
 var clicked_id = -1;
 
 function mousedown(event) {
+  clicked_id = -1;
   els = objs.get(c1).get(Logic)
   els.forEach((l, i) => {
     if (l.clicked(event.clientX, event.clientY)) {
       clicked_id = i;
     }
   })
-  els.push(els[clicked_id]);
-  els.splice(clicked_id, 1);
-  clicked_id = els.length - 1;
-  if (mousedownID == -1 && clicked_id != -1) {
+
+  if (mousedownID == -1 && clicked_id > -1) {
+    els.push(els[clicked_id]);
+    els.splice(clicked_id, 1);
+    clicked_id = els.length - 1;
     whilemousedown();
     mousedownID = setInterval(whilemousedown, 16);
   }
@@ -300,8 +303,11 @@ function mousemove(event) {
 
 function whilemousedown() {
   els = objs.get(c1).get(Logic)
-  els[clicked_id].x = x;
-  els[clicked_id].y = y;
+
+  if (clicked_id > -1) {
+    els[clicked_id].x = x;
+    els[clicked_id].y = y;
+  }
 }
 c.addEventListener("mousedown", mousedown);
 c.addEventListener("mouseup", mouseup);
