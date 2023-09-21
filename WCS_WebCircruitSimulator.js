@@ -273,8 +273,13 @@ var clicked_id = -1;
 function mousedown(event) {
   clicked_id = -1;
   els = objs.get(c1).get(Logic)
+
+  const rect = c.getBoundingClientRect()
+  const clientX = event.clientX - rect.left
+  const clientY = event.clientY - rect.top
+
   els.forEach((l, i) => {
-    if (l.clicked(event.clientX, event.clientY)) {
+    if (l.clicked(clientX, clientY)) {
       clicked_id = i;
     }
   })
@@ -297,8 +302,9 @@ function mouseup(event) {
 }
 
 function mousemove(event) {
-  x = event.clientX
-  y = event.clientY
+  const rect = c.getBoundingClientRect()
+  x = event.clientX - rect.left
+  y = event.clientY - rect.top
 }
 
 function whilemousedown() {
