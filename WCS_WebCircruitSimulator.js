@@ -261,6 +261,8 @@ let x = 0;
 let y = 0;
 
 function loop(timeStamp) {
+  ctx.canvas.width = window.innerWidth;
+  ctx.canvas.height = window.innerHeight;
   lastTime = timeStamp;
   c1.tick(ticks_per_draw);
   elapsedTime = timeStamp - lastTime;
