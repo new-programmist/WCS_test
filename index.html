@@ -23,9 +23,9 @@
       if(on) {
         ctx.strokeStyle = '#ff0000';
       }
-      path.moveTo(x1, y1);
-      points.forEach(([x, y]) => path.lineTo(x, y))
-      ctx.stroke(path);
+      ctx.moveTo(x1, y1);
+      points.forEach(([x, y]) => ctx.lineTo(x, y))
+      ctx.stroke();
       ctx.strokeStyle = '#000000';
 
     }
