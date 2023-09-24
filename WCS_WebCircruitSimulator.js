@@ -41,10 +41,12 @@ map.set('buff', new MapWithDefault(() => []))
 map.get('buff').set('nodes', [[71, 40], [187, 40]])
 map.get('buff').set('code', (a) => [[a], [a]])
 map.get('buff').set('ins', 1)
+map.get('buff').set('path', drawBuff(0, 0, 0))
 map.set('not', new MapWithDefault(() => []))
 map.get('not').set('nodes', [[71, 40], [187, 40]])
 map.get('not').set('code', (a) => [[!a], [!a]])
 map.get('not').set('ins', 1)
+map.get('not').set('path', drawNot(0, 0, 0))
 map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('or').set('code', (a, b) => [[a || b], [a || b]])
@@ -54,22 +56,27 @@ map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nor').set('code', (a, b) => [[!(a || b)], [!(a || b)]])
 map.get('nor').set('ins', 2)
+map.get('nor').set('path', drawNor(0, 0, 0))
 map.set('and', new MapWithDefault(() => []))
 map.get('and').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('and').set('code', (a, b) => [[a && b], [a && b]])
 map.get('and').set('ins', 2)
+map.get('and').set('path', drawAnd(0, 0, 0))
 map.set('nand', new MapWithDefault(() => []))
 map.get('nand').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nand').set('code', (a, b) => [[!(a && b)], [!(a && b)]])
 map.get('nand').set('ins', 2)
+map.get('nand').set('path', drawNand(0, 0, 0))
 map.set('xor', new MapWithDefault(() => []))
 map.get('xor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xor').set('code', (a, b) => [[(a ^ b) == 1], [(a ^ b) == 1]])
 map.get('xor').set('ins', 2)
+map.get('xor').set('path', drawXor(0, 0, 0))
 map.set('xnor', new MapWithDefault(() => []))
 map.get('xnor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xnor').set('code', (a, b) => [[(a ^ b) == 0], [(a ^ b) == 0]])
 map.get('xnor').set('ins', 2)
+map.get('xnor').set('path', drawXnor(0, 0, 0))
 
 class Connection {
   constructor(cir, node1, node2) {
@@ -194,15 +201,6 @@ class Circruit {
   }
 }
 
-c1 = new Circruit((cir) => {
-  new Logic(cir, 'or', 0, 0)
-  new Logic(cir, 'or', 0, 100)
-});
-
-let lastTime = performance.now();
-let x = 0;
-let y = 0;
-
 function loop(timeStamp) {
   ctx.canvas.width = window.innerWidth;
   ctx.canvas.height = window.innerHeight;
@@ -263,7 +261,20 @@ function whilemousedown() {
     els[clicked_id].reset()
   }
 }
+
+c1 = new Circruit((cir) => {
+  new Logic(cir, 'nor', 0, 0)
+  new Logic(cir, 'nor', 0, 100)
+  new Logic(cir, 'xnor', 100, 0)
+  new Logic(cir, 'xnor', 100, 100)
+});
+
+let lastTime = performance.now();
+let x = 0;
+let y = 0;
+
 c.addEventListener("mousedown", mousedown);
 c.addEventListener("mouseup", mouseup);
 c.addEventListener("mousemove", mousemove);
 window.requestAnimationFrame(loop);
+
