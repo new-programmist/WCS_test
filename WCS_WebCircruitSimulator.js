@@ -125,12 +125,16 @@ class Logic {
 
   reset() {
     let i = -1
-    this.ins.forEach((nod) => { i++;
+    this.ins.forEach((nod) => {
+      i++;
       nod.x = this.x + map.get(this.name).get('nodes')[i][0];
-      nod.y = this.y + map.get(this.name).get('nodes')[i][1] });
-    this.outs.forEach((nod) => { i++;
+      nod.y = this.y + map.get(this.name).get('nodes')[i][1]
+    });
+    this.outs.forEach((nod) => {
+      i++;
       nod.x = this.x + map.get(this.name).get('nodes')[i][0];
-      nod.y = this.y + map.get(this.name).get('nodes')[i][1] });
+      nod.y = this.y + map.get(this.name).get('nodes')[i][1]
+    });
   }
 }
 
@@ -148,6 +152,9 @@ class Node {
   }
   onConnected() {
     return this.connected.some(x => x.on);
+  }
+  clicked(x, y) {
+    return (x - this.x) ** 2 + (y - this.y) ** 2 < 1000;
   }
 }
 
@@ -214,27 +221,56 @@ var mousedownID = -1;
 var clicked_id = -1;
 var mx = 0;
 var my = 0;
+var node_clicked = 0;
 
 function mousedown(event) {
+  if (mousedownID != -1) return;
+
   const rect = c.getBoundingClientRect()
   const clientX = event.clientX - rect.left
   const clientY = event.clientY - rect.top
+
   clicked_id = -1;
-  els = objs.get(c1).get(Logic)
+  els = objs.get(c1).get(Node)
+
   els.forEach((l, i) => {
     if (l.clicked(clientX, clientY)) {
       clicked_id = i;
     }
   })
 
-  if (mousedownID == -1 && clicked_id > -1) {
-    els.push(els[clicked_id]);
-    els.splice(clicked_id, 1);
-    clicked_id = els.length - 1;
-    mx = clientX - els[clicked_id].x
-    my = clientY - els[clicked_id].y
-    whilemousedown();
-    mousedownID = setInterval(whilemousedown, 16);
+  if (clicked_id > -1) {
+    if (node_clicked == 0) {
+      els.push(els[clicked_id]);
+      els.splice(clicked_id, 1);
+      clicked_id = els.length - 1;
+      node_clicked = clicked_id;
+    } else {
+      new Connection(c1, els[node_clicked], els[clicked_id])
+      node_clicked = 0;
+      els.push(els[clicked_id]);
+      els.splice(clicked_id, 1);
+      clicked_id = els.length - 1;
+    }
+  } else {
+    clicked_id = -1;
+    els = objs.get(c1).get(Logic)
+
+    els.forEach((l, i) => {
+      if (l.clicked(clientX, clientY)) {
+        clicked_id = i;
+      }
+    })
+    if (clicked_id > -1) {
+      node_cliked = 0;
+      els.push(els[clicked_id]);
+      els.splice(clicked_id, 1);
+      clicked_id = els.length - 1;
+      mx = clientX - els[clicked_id].x
+      my = clientY - els[clicked_id].y
+      whilemousedown();
+      mousedownID = setInterval(whilemousedown, 16);
+    }
   }
 }
 
@@ -263,52 +299,54 @@ function whilemousedown() {
 }
 
 c1 = new Circruit((cir) => {
-  new Logic(cir, 'and',0,0)
-  new Logic(cir, 'nand',140,-7)
-  new Connection(cir, objs2.get(Node)[2],objs2.get(Node)[4])
-  new Logic(cir, 'and',0,460)
-  new Logic(cir, 'nand',140,467)
-  new Connection(cir, objs2.get(Node)[8],objs2.get(Node)[9])
-  new Logic(cir, 'nand',280,0)
-  new Logic(cir, 'nand',280,460)
-  new Connection(cir, objs2.get(Node)[5],objs2.get(Node)[12])
-  new Connection(cir, objs2.get(Node)[11],objs2.get(Node)[16])
-  new Connection(cir, objs2.get(Node)[17],objs2.get(Node)[13])
-  new Connection(cir, objs2.get(Node)[14],objs2.get(Node)[15])
-  new Logic(cir, 'not',210,230)
-  new Connection(cir, objs2.get(Node)[1],objs2.get(Node)[18])
-  new Connection(cir, objs2.get(Node)[6],objs2.get(Node)[18])
-  new Logic(cir, 'nand',420,0)
-  new Logic(cir, 'nand',420,460)
-  new Connection(cir, objs2.get(Node)[21],objs2.get(Node)[19])
-  new Connection(cir, objs2.get(Node)[23],objs2.get(Node)[19])
-  new Connection(cir, objs2.get(Node)[20],objs2.get(Node)[14])
-  new Connection(cir, objs2.get(Node)[24],objs2.get(Node)[17])
-  new Logic(cir, 'nand',560,0)
-  new Logic(cir, 'nand',560,460)
-  new Connection(cir, objs2.get(Node)[22],objs2.get(Node)[26])
-  new Connection(cir, objs2.get(Node)[25],objs2.get(Node)[30])
-  new Connection(cir, objs2.get(Node)[27],objs2.get(Node)[31])
-  new Connection(cir, objs2.get(Node)[28],objs2.get(Node)[29])
-  new Connection(cir, objs2.get(Node)[3],objs2.get(Node)[31])
-  new Connection(cir, objs2.get(Node)[10],objs2.get(Node)[28])
-  new Logic(cir, 'not',0,800)
-  new Logic(cir, 'buff',220,800)
-  new Logic(cir, 'buff',440,800)
-  new Logic(cir, 'buff',660,800)
-  new Logic(cir, 'buff',0,900)
-  new Logic(cir, 'buff',220,900)
-  new Logic(cir, 'buff',440,900)
-  new Logic(cir, 'buff',660,900)
-  new Connection(cir, objs2.get(Node)[33],objs2.get(Node)[34])
-  new Connection(cir, objs2.get(Node)[35],objs2.get(Node)[36])
-  new Connection(cir, objs2.get(Node)[37],objs2.get(Node)[38])
-  new Connection(cir, objs2.get(Node)[39],objs2.get(Node)[40])
-  new Connection(cir, objs2.get(Node)[41],objs2.get(Node)[42])
-  new Connection(cir, objs2.get(Node)[43],objs2.get(Node)[44])
-  new Connection(cir, objs2.get(Node)[45],objs2.get(Node)[46])
-  new Connection(cir, objs2.get(Node)[47],objs2.get(Node)[32])
-  new Connection(cir, objs2.get(Node)[32],objs2.get(Node)[18])
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'not', 0, 0)
+  //new Logic(cir, 'and', 0, 0)
+  //new Logic(cir, 'nand', 140, -7)
+  //new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[4])
+  //new Logic(cir, 'and', 0, 460)
+  //new Logic(cir, 'nand', 140, 467)
+  //new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[9])
+  //new Logic(cir, 'nand', 280, 0)
+  //new Logic(cir, 'nand', 280, 460)
+  //new Connection(cir, objs2.get(Node)[5], objs2.get(Node)[12])
+  //new Connection(cir, objs2.get(Node)[11], objs2.get(Node)[16])
+  //new Connection(cir, objs2.get(Node)[17], objs2.get(Node)[13])
+  //new Connection(cir, objs2.get(Node)[14], objs2.get(Node)[15])
+  //new Logic(cir, 'not', 210, 230)
+  //new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[18])
+  //new Connection(cir, objs2.get(Node)[6], objs2.get(Node)[18])
+  //new Logic(cir, 'nand', 420, 0)
+  //new Logic(cir, 'nand', 420, 460)
+  //new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[19])
+  //new Connection(cir, objs2.get(Node)[23], objs2.get(Node)[19])
+  //new Connection(cir, objs2.get(Node)[20], objs2.get(Node)[14])
+  //new Connection(cir, objs2.get(Node)[24], objs2.get(Node)[17])
+  //new Logic(cir, 'nand', 560, 0)
+  //new Logic(cir, 'nand', 560, 460)
+  //new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[26])
+  //new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[30])
+  //new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[31])
+  //new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[29])
+  //new Connection(cir, objs2.get(Node)[3], objs2.get(Node)[31])
+  //new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[28])
+  //new Logic(cir, 'not', 0, 800)
+  //new Logic(cir, 'buff', 220, 800)
+  //new Logic(cir, 'buff', 440, 800)
+  //new Logic(cir, 'buff', 660, 800)
+  //new Logic(cir, 'buff', 0, 900)
+  //new Logic(cir, 'buff', 220, 900)
+  //new Logic(cir, 'buff', 440, 900)
+  //new Logic(cir, 'buff', 660, 900)
+  //new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[34])
+  //new Connection(cir, objs2.get(Node)[35], objs2.get(Node)[36])
+  //new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[38])
+  //new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[40])
+  //new Connection(cir, objs2.get(Node)[41], objs2.get(Node)[42])
+  //new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[44])
+  //new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[46])
+  //new Connection(cir, objs2.get(Node)[47], objs2.get(Node)[32])
+  //new Connection(cir, objs2.get(Node)[32], objs2.get(Node)[18])
 });
 
 let lastTime = performance.now();
@@ -319,4 +357,3 @@ c.addEventListener("mousedown", mousedown);
 c.addEventListener("mouseup", mouseup);
 c.addEventListener("mousemove", mousemove);
 window.requestAnimationFrame(loop);
-
