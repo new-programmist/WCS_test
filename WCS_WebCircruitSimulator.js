@@ -3,11 +3,15 @@ const ticks_per_draw = 1000000
 
 class Draw {
   static drawall(objects) {
+    let i = 0
     ctx.clearRect(0, 0, c.width, c.height)
     objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on))
     objects.get(Logic).forEach((l) => {
       eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ')');
-      (l.ins.concat(l.outs)).forEach((n) => drawNode(n.x, n.y, n.on || n.onConnected()))
+      (l.ins.concat(l.outs)).forEach((n) => {
+        drawNode(n.x, n.y, n.on || n.onConnected(), i == node)
+        i++
+      })
     });
   }
 }
@@ -154,7 +158,7 @@ class Node {
     return this.connected.some(x => x.on);
   }
   clicked(x, y) {
-    return (x - this.x) ** 2 + (y - this.y) ** 2 < 1000;
+    return (x - this.x) ** 2 + (y - this.y) ** 2 < 100;
   }
 }
 
@@ -221,7 +225,12 @@ var mousedownID = -1;
 var clicked_id = -1;
 var mx = 0;
 var my = 0;
-var node_clicked = 0;
+var node_clicked = -1;
+var node = -1;
+
+function uniq(a) {
+  return Array.from(new Set(a));
+}
 
 function mousedown(event) {
   if (mousedownID != -1) return;
@@ -240,19 +249,16 @@ function mousedown(event) {
   })
 
   if (clicked_id > -1) {
-    if (node_clicked == 0) {
-      els.push(els[clicked_id]);
-      els.splice(clicked_id, 1);
-      clicked_id = els.length - 1;
-      node_clicked = clicked_id;
+    if (node_clicked == -1) {
+      node = clicked_id;
+      node_clicked = 1;
     } else {
-      new Connection(c1, els[node_clicked], els[clicked_id])
-      node_clicked = 0;
-      els.push(els[clicked_id]);
-      els.splice(clicked_id, 1);
-      clicked_id = els.length - 1;
+      if (node > -1 && node != clicked_id && els[node].connected.concat(els[clicked_id]).length == uniq(els[node].connected.concat(els[clicked_id])).length) new Connection(c1, els[node], els[clicked_id]);
+      node_clicked = -1;
+      node = clicked_id;
     }
   } else {
+    node = -1;
     clicked_id = -1;
     els = objs.get(c1).get(Logic)
 

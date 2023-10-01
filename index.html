@@ -29,11 +29,11 @@
       ctx.strokeStyle = '#000000';
 
     }
-    function drawNode(/*ctx,*/ x, y, on) {
+    function drawNode(/*ctx,*/ x, y, on, clicked) {
       const path = new Path2D();
 
-      path.arc(x, y, 4.5, 0, 2 * Math.PI);
-      ctx.fillStyle = on ? "#FF0000" : "#000000";
+      path.arc(x, y, clicked ? 10 : 4.5, 0, 2 * Math.PI);
+      ctx.fillStyle = clicked ? "#00FF00" : on ? "#FF0000" : "#000000";
       ctx.fill(path);
 
       return path;
