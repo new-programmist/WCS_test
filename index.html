@@ -19,19 +19,33 @@
         [(dx > dy) ? (x1 + x2) / 2 : x2, (dx > dy) ? y2 : (y1 + y2) / 2],
         [x2, y2],
       ]
+      console.log(on)
+      ctx.strokeStyle = on ? '#FF0000' : '000000';
 
-      if(on) {
-        ctx.strokeStyle = '#ff0000';
-      }
       ctx.moveTo(x1, y1);
       points.forEach(([x, y]) => ctx.lineTo(x, y))
       ctx.stroke();
-      ctx.strokeStyle = '#000000';
+      ctx.strokeStyle = 0
 
+    }
+    function drawButton(/*ctx,*/ x, y, on) {
+      const path = new Path2D();
+      path.moveTo(x, y)
+      path.arc(x, y, 30, 0, 2 * Math.PI);
+      ctx.fillStyle = on ? "#FF0000" : "#000000"
+      ctx.strokeStyle = on ? "#FF0000" : "#000000"
+      ctx.fill(path);
+      const line = new Path2D();
+      path.addPath(line)      
+      line.moveTo(x, y)
+      line.lineTo(x + 50, y)
+      ctx.stroke(line);
+      ctx.strokeStyle = "#000000";
+      return path;
     }
     function drawNode(/*ctx,*/ x, y, on, clicked) {
       const path = new Path2D();
-
+      path.moveTo(x, y)
       path.arc(x, y, clicked ? 10 : 4.5, 0, 2 * Math.PI);
       ctx.fillStyle = clicked ? "#00FF00" : on ? "#FF0000" : "#000000";
       ctx.fill(path);
@@ -113,7 +127,6 @@
       path.moveTo((187 + x), (40 + y));
       path.lineTo((150 + x), (40 + y));
       ctx.stroke(path);
-
       return path;
     }
 
@@ -259,24 +272,7 @@
     }
 
 
-    orX = 0;
-    orY = 0;
-    norX = 200;
-    norY = 100;
-    andX = 350;
-    andY = 0;
-    xorX = 200;
-    xorY = 200;
-    nandX = 0;
-    nandY = 100;
-    xnorX = 200;
-    xnorY = 0;
-    buffX = 50;
-    buffY = 50;
-    notX = 200;
-    notY = 50;
 
-    //drawWire(/*ctx, */orX + 187, orY + 40, norX + 71, norY + 32)
   </script>
   <script src="WCS_WebCircruitSimulator.js"></script>
 

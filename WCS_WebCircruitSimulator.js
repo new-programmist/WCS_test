@@ -1,16 +1,18 @@
 const period = 20 // ms
-const ticks_per_draw = 1000000
+const ticks_per_draw = 1
+
+let lastTime = performance.now();
+let x = 0;
+let y = 0;
 
 class Draw {
   static drawall(objects) {
-    let i = 0
     ctx.clearRect(0, 0, c.width, c.height)
     objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on))
     objects.get(Logic).forEach((l) => {
       eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
-        drawNode(n.x, n.y, n.on || n.onConnected(), i == node)
-        i++
+        drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node)
       })
     });
   }
@@ -35,52 +37,57 @@ let objs2 = null
 let map = new Map()
 map.set('off', new MapWithDefault(() => []))
 map.get('off').set('nodes', [[0, 0]])
-map.get('off').set('code', () => [[false], []])
+map.get('off').set('code', (v, l) => [[false], []])
 map.get('off').set('ins', 0)
 map.set('on', new MapWithDefault(() => []))
 map.get('on').set('nodes', [[0, 0]])
-map.get('on').set('code', () => [[true], []])
+map.get('on').set('code', (v, l) => [[true], []])
 map.get('on').set('ins', 0)
 map.set('buff', new MapWithDefault(() => []))
 map.get('buff').set('nodes', [[71, 40], [187, 40]])
-map.get('buff').set('code', (a) => [[a], [a]])
+map.get('buff').set('code', (a, v, l) => [[a], [a]])
 map.get('buff').set('ins', 1)
 map.get('buff').set('path', drawBuff(0, 0, 0))
 map.set('not', new MapWithDefault(() => []))
 map.get('not').set('nodes', [[71, 40], [187, 40]])
-map.get('not').set('code', (a) => [[!a], [!a]])
+map.get('not').set('code', (a, v, l) => [[!a], [!a]])
 map.get('not').set('ins', 1)
 map.get('not').set('path', drawNot(0, 0, 0))
 map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('or').set('code', (a, b) => [[a || b], [a || b]])
+map.get('or').set('code', (a, b, v, l) => [[a || b], [a || b]])
 map.get('or').set('ins', 2)
 map.get('or').set('path', drawOr(0, 0, 0))
 map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('nor').set('code', (a, b) => [[!(a || b)], [!(a || b)]])
+map.get('nor').set('code', (a, b, v, l) => [[!(a || b)], [!(a || b)]])
 map.get('nor').set('ins', 2)
 map.get('nor').set('path', drawNor(0, 0, 0))
 map.set('and', new MapWithDefault(() => []))
 map.get('and').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('and').set('code', (a, b) => [[a && b], [a && b]])
+map.get('and').set('code', (a, b, v, l) => [[a && b], [a && b]])
 map.get('and').set('ins', 2)
 map.get('and').set('path', drawAnd(0, 0, 0))
 map.set('nand', new MapWithDefault(() => []))
 map.get('nand').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('nand').set('code', (a, b) => [[!(a && b)], [!(a && b)]])
+map.get('nand').set('code', (a, b, v, l) => [[!(a && b)], [!(a && b)]])
 map.get('nand').set('ins', 2)
 map.get('nand').set('path', drawNand(0, 0, 0))
 map.set('xor', new MapWithDefault(() => []))
 map.get('xor').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('xor').set('code', (a, b) => [[(a ^ b) == 1], [(a ^ b) == 1]])
+map.get('xor').set('code', (a, b, v, l) => [[(a ^ b) == 1], [(a ^ b) == 1]])
 map.get('xor').set('ins', 2)
 map.get('xor').set('path', drawXor(0, 0, 0))
 map.set('xnor', new MapWithDefault(() => []))
 map.get('xnor').set('nodes', [[71, 33], [71, 47], [187, 40]])
-map.get('xnor').set('code', (a, b) => [[(a ^ b) == 0], [(a ^ b) == 0]])
+map.get('xnor').set('code', (a, b, v, l) => [[(a ^ b) == 0], [(a ^ b) == 0]])
 map.get('xnor').set('ins', 2)
 map.get('xnor').set('path', drawXnor(0, 0, 0))
+map.set('button', new MapWithDefault(() => []))
+map.get('button').set('nodes', [[50, 0]])
+map.get('button').set('code', (v, l) => [[(x-l.x)**2+(y-l.y)**2 < 900], [(x-l.x)**2+(y-l.y)**2 < 900]])
+map.get('button').set('ins', 0)
+map.get('button').set('path', drawButton(0, 0, 0))
 
 class Connection {
   constructor(cir, node1, node2) {
@@ -115,7 +122,7 @@ class Logic {
   }
 
   tick() {
-    const out = this.block(...this.ins.map(inNode => inNode.onConnected()), this.vars);
+    const out = this.block(...this.ins.map(inNode => inNode.onConnected()), this.vars, this);
     for (const [i, outNode] of this.outs.entries()) {
       outNode.on = out[0][i];
     }
@@ -148,6 +155,7 @@ class Node {
     this.connected = [];
     this.x = x;
     this.y = y;
+    this.i = objs2.get(this.constructor).length
     this.on = false;
     objs2.get(this.constructor).push(this);
   }
@@ -255,10 +263,9 @@ function mousedown(event) {
     } else {
       if (node > -1 && node != clicked_id && els[node].connected.concat(els[clicked_id]).length == uniq(els[node].connected.concat(els[clicked_id])).length) new Connection(c1, els[node], els[clicked_id]);
       node_clicked = -1;
-      node = clicked_id;
+      node = -1;
     }
   } else {
-    node = -1;
     clicked_id = -1;
     els = objs.get(c1).get(Logic)
 
@@ -269,6 +276,7 @@ function mousedown(event) {
     })
     if (clicked_id > -1) {
       node_cliked = 0;
+      node = -1;
       els.push(els[clicked_id]);
       els.splice(clicked_id, 1);
       clicked_id = els.length - 1;
@@ -306,7 +314,41 @@ function whilemousedown() {
 
 c1 = new Circruit((cir) => {
   new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
   new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
+  new Logic(cir, 'not', 0, 0)
+  new Logic(cir, 'button', 100, 100)
   //new Logic(cir, 'and', 0, 0)
   //new Logic(cir, 'nand', 140, -7)
   //new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[4])
@@ -354,10 +396,6 @@ c1 = new Circruit((cir) => {
   //new Connection(cir, objs2.get(Node)[47], objs2.get(Node)[32])
   //new Connection(cir, objs2.get(Node)[32], objs2.get(Node)[18])
 });
-
-let lastTime = performance.now();
-let x = 0;
-let y = 0;
 
 c.addEventListener("mousedown", mousedown);
 c.addEventListener("mouseup", mouseup);
