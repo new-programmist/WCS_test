@@ -19,13 +19,12 @@
         [(dx > dy) ? (x1 + x2) / 2 : x2, (dx > dy) ? y2 : (y1 + y2) / 2],
         [x2, y2],
       ]
-      console.log(on)
-      ctx.strokeStyle = on ? '#FF0000' : '000000';
-
+      ctx.strokeStyle = on ? '#FF0000' : '#000000';
+      ctx.beginPath();
       ctx.moveTo(x1, y1);
       points.forEach(([x, y]) => ctx.lineTo(x, y))
       ctx.stroke();
-      ctx.strokeStyle = 0
+      //ctx.strokeStyle = 0
 
     }
     function drawButton(/*ctx,*/ x, y, on) {

@@ -1,9 +1,10 @@
 const period = 20 // ms
 const ticks_per_draw = 1
-
+let selected = 0;
 let lastTime = performance.now();
 let x = 0;
 let y = 0;
+let down = 0;
 
 class Draw {
   static drawall(objects) {
@@ -85,7 +86,19 @@ map.get('xnor').set('ins', 2)
 map.get('xnor').set('path', drawXnor(0, 0, 0))
 map.set('button', new MapWithDefault(() => []))
 map.get('button').set('nodes', [[50, 0]])
-map.get('button').set('code', (v, l) => [[(x-l.x)**2+(y-l.y)**2 < 900], [(x-l.x)**2+(y-l.y)**2 < 900]])
+map.get('button').set('code', (v, l) => {
+  if(!down){
+    v.set(1,0)
+    selected = 0
+  }else{
+    if(((x-l.x)**2+(y-l.y)**2 < 900) && (v.get(1) == 0) && (selected == 0)){
+      v.set(0,!v.get(0))
+      v.set(1,1)
+      selected = 1
+    }
+  }
+  return [[v.get(0)], [v.get(0)]]
+})
 map.get('button').set('ins', 0)
 map.get('button').set('path', drawButton(0, 0, 0))
 
@@ -192,7 +205,7 @@ class Circruit {
   }
   tick(n = 1) {
     for (let time = Date.now(), tick = 0; tick < n && (Date.now() - time) <= period; tick++) {
-      objs.get(this).get(Logic).forEach(_1 => _1.tick());
+      objs.get(this).get(Logic).slice().reverse().forEach(_1 => _1.tick());
       const visited = new Set();
       objs.get(this).get(Connection).forEach(con => {
         if (visited.has(con)) return;
@@ -241,6 +254,7 @@ function uniq(a) {
 }
 
 function mousedown(event) {
+  down = 1;
   if (mousedownID != -1) return;
 
   const rect = c.getBoundingClientRect()
@@ -289,6 +303,7 @@ function mousedown(event) {
 }
 
 function mouseup(event) {
+  down = 0;
   if (mousedownID != -1) {
     clearInterval(mousedownID);
     mousedownID = -1;
