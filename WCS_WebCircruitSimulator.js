@@ -7,15 +7,16 @@ let y = 0;
 let down = 0;
 
 class Draw {
-  static drawall(objects) {
+  static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
     ctx.clearRect(0, 0, c.width, c.height)
-    objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on))
+    objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ')');
+      eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ',' + ctxname + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
-        drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node)
+        drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
       })
     });
+    if(panel) Panel.draw();
   }
 }
 String.prototype.capitalize = function() {
@@ -143,7 +144,7 @@ class Logic {
   }
 
   clicked(x, y) {
-    const ret = ctx.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
+    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
     return ret;
   }
 
@@ -196,7 +197,7 @@ class Circruit {
   }
   add(save_code) {
     this.save = save_code;
-    objs2 ||= new MapWithDefault(() => []);
+    objs2 = objs.get(this);
     objs.set(this, objs2);
     this.parse(save_code);
   }
@@ -234,8 +235,10 @@ class Circruit {
 }
 
 function loop(timeStamp) {
-  ctx.canvas.width = window.innerWidth;
-  ctx.canvas.height = window.innerHeight;
+  ctxCr.canvas.width = window.innerWidth;
+  ctxCr.canvas.height = window.innerHeight - 200;
+  ctxPl.canvas.width = window.innerWidth;
+  ctxPl.canvas.height = 200;
   lastTime = timeStamp;
   c1.tick(ticks_per_draw);
   elapsedTime = timeStamp - lastTime;
@@ -257,7 +260,7 @@ function mousedown(event) {
   down = 1;
   if (mousedownID != -1) return;
 
-  const rect = c.getBoundingClientRect()
+  const rect = cCr.getBoundingClientRect()
   const clientX = event.clientX - rect.left
   const clientY = event.clientY - rect.top
 
@@ -298,6 +301,8 @@ function mousedown(event) {
       my = clientY - els[clicked_id].y
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
+    }else{
+      selected = 1;
     }
   }
 }
@@ -312,7 +317,7 @@ function mouseup(event) {
 }
 
 function mousemove(event) {
-  const rect = c.getBoundingClientRect()
+  const rect = cCr.getBoundingClientRect()
   x = event.clientX - rect.left
   y = event.clientY - rect.top
 }
@@ -327,92 +332,19 @@ function whilemousedown() {
   }
 }
 
-c1 = new Circruit((cir) => {
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  new Logic(cir, 'not', 0, 0)
-  new Logic(cir, 'button', 100, 100)
-  //new Logic(cir, 'and', 0, 0)
-  //new Logic(cir, 'nand', 140, -7)
-  //new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[4])
-  //new Logic(cir, 'and', 0, 460)
-  //new Logic(cir, 'nand', 140, 467)
-  //new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[9])
-  //new Logic(cir, 'nand', 280, 0)
-  //new Logic(cir, 'nand', 280, 460)
-  //new Connection(cir, objs2.get(Node)[5], objs2.get(Node)[12])
-  //new Connection(cir, objs2.get(Node)[11], objs2.get(Node)[16])
-  //new Connection(cir, objs2.get(Node)[17], objs2.get(Node)[13])
-  //new Connection(cir, objs2.get(Node)[14], objs2.get(Node)[15])
-  //new Logic(cir, 'not', 210, 230)
-  //new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[18])
-  //new Connection(cir, objs2.get(Node)[6], objs2.get(Node)[18])
-  //new Logic(cir, 'nand', 420, 0)
-  //new Logic(cir, 'nand', 420, 460)
-  //new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[19])
-  //new Connection(cir, objs2.get(Node)[23], objs2.get(Node)[19])
-  //new Connection(cir, objs2.get(Node)[20], objs2.get(Node)[14])
-  //new Connection(cir, objs2.get(Node)[24], objs2.get(Node)[17])
-  //new Logic(cir, 'nand', 560, 0)
-  //new Logic(cir, 'nand', 560, 460)
-  //new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[26])
-  //new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[30])
-  //new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[31])
-  //new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[29])
-  //new Connection(cir, objs2.get(Node)[3], objs2.get(Node)[31])
-  //new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[28])
-  //new Logic(cir, 'not', 0, 800)
-  //new Logic(cir, 'buff', 220, 800)
-  //new Logic(cir, 'buff', 440, 800)
-  //new Logic(cir, 'buff', 660, 800)
-  //new Logic(cir, 'buff', 0, 900)
-  //new Logic(cir, 'buff', 220, 900)
-  //new Logic(cir, 'buff', 440, 900)
-  //new Logic(cir, 'buff', 660, 900)
-  //new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[34])
-  //new Connection(cir, objs2.get(Node)[35], objs2.get(Node)[36])
-  //new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[38])
-  //new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[40])
-  //new Connection(cir, objs2.get(Node)[41], objs2.get(Node)[42])
-  //new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[44])
-  //new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[46])
-  //new Connection(cir, objs2.get(Node)[47], objs2.get(Node)[32])
-  //new Connection(cir, objs2.get(Node)[32], objs2.get(Node)[18])
-});
 
-c.addEventListener("mousedown", mousedown);
-c.addEventListener("mouseup", mouseup);
-c.addEventListener("mousemove", mousemove);
-window.requestAnimationFrame(loop);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

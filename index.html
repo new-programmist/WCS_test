@@ -3,14 +3,18 @@
 
 <body style="margin: 0;">
 
-  <canvas id="myCanvas">
+  <canvas id="Circuit">
+    Your browser does not support the HTML5 canvas tag.</canvas>
+  <canvas id="Panel" style="border: 5px solid black">
     Your browser does not support the HTML5 canvas tag.</canvas>
   
   <script>
-    var c = document.getElementById("myCanvas");
-    var ctx = c.getContext("2d");
+    var cCr = document.getElementById("Circuit");
+    var ctxCr = cCr.getContext("2d");
+    var cPl = document.getElementById("Panel");
+    var ctxPl = cPl.getContext("2d");
 
-    function drawWire(/*ctx,*/ x1, y1, x2, y2, on) {
+    function drawWire( x1, y1, x2, y2, on,ctx = ctxCr) {
       const dx = Math.abs(x1 - x2)
       const dy = Math.abs(y1 - y2)
 
@@ -24,10 +28,9 @@
       ctx.moveTo(x1, y1);
       points.forEach(([x, y]) => ctx.lineTo(x, y))
       ctx.stroke();
-      //ctx.strokeStyle = 0
-
+      ctx.strokeStyle = "#000000";
     }
-    function drawButton(/*ctx,*/ x, y, on) {
+    function drawButton( x, y, on,ctx = ctxCr) {
       const path = new Path2D();
       path.moveTo(x, y)
       path.arc(x, y, 30, 0, 2 * Math.PI);
@@ -42,7 +45,7 @@
       ctx.strokeStyle = "#000000";
       return path;
     }
-    function drawNode(/*ctx,*/ x, y, on, clicked) {
+    function drawNode( x, y, on, clicked,ctx = ctxCr) {
       const path = new Path2D();
       path.moveTo(x, y)
       path.arc(x, y, clicked ? 10 : 4.5, 0, 2 * Math.PI);
@@ -51,11 +54,11 @@
 
       return path;
     }
-    function drawOn(/*ctx, */x, y) {
+    function drawOn(x, y) {
     }
-    function drawOff(/*ctx, */x, y) {
+    function drawOff(x, y) {
     }
-    function drawOr(/*ctx, */x, y, on) {
+    function drawOr(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -77,7 +80,7 @@
       return path;
     }
 
-    function drawNor(/*ctx, */x, y, on) {
+    function drawNor(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -108,7 +111,7 @@
       return path;
     } // [[70, 33], [70, 47], [187, 40]]
 
-    function drawAnd(/*ctx, */x, y, on) {
+    function drawAnd(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -129,7 +132,7 @@
       return path;
     }
 
-    function drawXor(/*ctx, */x, y, on) {
+    function drawXor(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -156,7 +159,7 @@
       return path;
     }
 
-    function drawNand(/*ctx, */x, y, on) {
+    function drawNand(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -187,7 +190,7 @@
       return path;
     }
 
-    function drawXnor(/*ctx, */x, y, on) {
+    function drawXnor(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -223,7 +226,7 @@
       return path;
     }
 
-    function drawBuff(/*ctx, */x, y, on) {
+    function drawBuff(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -242,7 +245,7 @@
       return path;
     }
 
-    function drawNot(/*ctx, */x, y, on) {
+    function drawNot(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
 
       ctx.fillStyle = (on ? "#FF0000" : "#FFFFFF");
@@ -274,6 +277,26 @@
 
   </script>
   <script src="WCS_WebCircruitSimulator.js"></script>
+  <script src="Panel.js"></script>
+  <script>
+    var c1 = new Circruit((cir) => {});
+    var c2 = new Circruit((cir) => {
+      new Logic(cir, 'not', 0, 0)
+      new Logic(cir, 'button', 100, 100)
+      new Logic(cir, 'and', 157, 0)
+      new Logic(cir, 'buff', 157, 50)
+      new Logic(cir, 'nand', 157, 100)
+      new Logic(cir, 'or', 325, 0)
+      new Logic(cir, 'nor', 325, 75)
+      new Logic(cir, 'xor', 482, 0)
+      new Logic(cir, 'xnor', 482, 75)
+    });
+    cCr.addEventListener("mousedown", mousedown);
+    cCr.addEventListener("mouseup", mouseup);
+    cCr.addEventListener("mousemove", mousemove);
+    cPl.addEventListener("mousedown", panelDown);
+    window.requestAnimationFrame(loop);
+  </script>
 
 </body>
 
