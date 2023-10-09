@@ -116,7 +116,6 @@ class Connection {
     cir.tick();
   }
   del() {
-    console.log(this.in.x)
     let arr = objs.get(c1).get(this.constructor)
     arr.splice(arr.indexOf(this),1)
     objs.get(c1).set(this.constructor,arr)

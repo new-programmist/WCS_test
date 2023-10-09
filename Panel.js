@@ -31,7 +31,6 @@ function panelDown(event) {
 
 function panelUp(event) {
   down = 0;
-  console.log(mousedownID)
   if (mousedownID != -1) {
     clearInterval(mousedownID);
     mousedownID = -1;
