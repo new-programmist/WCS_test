@@ -1,5 +1,5 @@
 const period = 20 // ms
-const ticks_per_draw = 2048
+const ticks_per_draw = 1
 let selected = 0;
 let lastTime = performance.now();
 let x = 0;
@@ -118,6 +118,7 @@ class Connection {
   del() {
     let arr = objs.get(c1).get(this.constructor)
     arr = arr.splice(arr.indexOf(self),1)
+    new Array(this.in,this.out).forEach((n) => n.connected.splice(n.connected.indexOf(this),1))
   }
 }
 
@@ -295,10 +296,13 @@ function mousedown(event) {
       node = clicked_id;
       node_clicked = 1;
     } else {
-      if (node > -1 && node != clicked_id && intersection(els[node].connected,els[clicked_id].connected).length == 0) {
-        new Connection(c1, els[node], els[clicked_id]);
-      } else {
-        intersection(els[node].connected,els[clicked_id].connected)[0].del()
+      if (node > -1 && node != clicked_id){
+        if(intersection(els[node].connected,els[clicked_id].connected).length == 0) {
+          new Connection(c1, els[node], els[clicked_id]);
+        } else {
+          intersection(els[node].connected,els[clicked_id].connected)[0].del()
+          node = -1;
+        }
       }
       node_clicked = -1;
       node = -1;
@@ -330,7 +334,6 @@ function mousedown(event) {
 
 function mouseup(event) {
   down = 0;
-  console.log(mousedownID)
   if (mousedownID != -1) {
     clearInterval(mousedownID);
     mousedownID = -1;
