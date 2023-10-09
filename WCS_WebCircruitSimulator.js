@@ -334,6 +334,7 @@ function mouseup(event) {
   if (mousedownID != -1) {
     clearInterval(mousedownID);
     mousedownID = -1;
+    move = 0
   }
 
 }
