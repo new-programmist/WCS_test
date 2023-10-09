@@ -267,6 +267,7 @@ var mx = 0;
 var my = 0;
 var node_clicked = -1;
 var node = -1;
+var move = 0;
 
 function uniq(a) {
   return Array.from(new Set(a));
@@ -341,15 +342,17 @@ function mousemove(event) {
   const rect = cCr.getBoundingClientRect()
   x = event.clientX - rect.left
   y = event.clientY - rect.top
+  move = 1
 }
 
 function whilemousedown() {
   els = objs.get(c1).get(Logic)
 
-  if (clicked_id > -1) {
+  if (clicked_id > -1 && move == 1) {
     els[clicked_id].x = x - mx;
     els[clicked_id].y = y - my;
     els[clicked_id].reset()
+    move = 0
   }
 }
 
