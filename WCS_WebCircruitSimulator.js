@@ -116,8 +116,10 @@ class Connection {
     cir.tick();
   }
   del() {
+    console.log(this.in.x)
     let arr = objs.get(c1).get(this.constructor)
-    arr = arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(this),1)
+    objs.get(c1).set(this.constructor,arr)
     new Array(this.in,this.out).forEach((n) => n.connected.splice(n.connected.indexOf(this),1))
   }
 }
@@ -170,7 +172,7 @@ class Logic {
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
-    arr = arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(self),1)
     this.ins.concat(this.outs).forEach((n) => n.del())
   }
 }
@@ -196,7 +198,7 @@ class Node {
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
-    arr = arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(self),1)
     this.connected.forEach((con) => con.del())
   }
 }
