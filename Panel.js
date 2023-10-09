@@ -21,4 +21,18 @@ function panelDown(event) {
       objs.set(c1, objs2);
       new Logic(c1, els[clicked_id].name, 100, 100)
     }
+    clicked_id = objs.get(c1).get(Logic).length - 1
+    whilemousedown();
+    mousedownID = setInterval(whilemousedown, 16);
+}
+
+function panelUp(event) {
+  down = 0;
+  console.log(mousedownID)
+  if (mousedownID != -1) {
+    clearInterval(mousedownID);
+    mousedownID = -1;
+    objs.get(c1).get(Logic)[clicked_id].del()
+  }
+
 }

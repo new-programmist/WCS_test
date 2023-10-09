@@ -54,9 +54,37 @@
 
       return path;
     }
-    function drawOn(x, y) {
+    function drawOn(x, y,ctx=ctxCr) {
+      const path = new Path2D();
+      path.moveTo(x, y)
+      path.lineTo(x-50,y)
+      path.arc(x-50, y, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = "#FF0000"
+      ctx.strokeStyle = "#FF0000"
+      ctx.fill(path);
+      const line = new Path2D();
+      path.addPath(line)      
+      line.moveTo(x, y)
+      line.lineTo(x - 50, y)
+      ctx.stroke(line);
+      ctx.strokeStyle = "#000000";
+      return path
     }
-    function drawOff(x, y) {
+    function drawOff(x, y,ctx=ctxCr) {
+      const path = new Path2D();
+      path.moveTo(x, y)
+      path.lineTo(x-50,y)
+      path.arc(x-50, y, 20, 0, 2 * Math.PI);
+      ctx.fillStyle = "#000000"
+      ctx.strokeStyle = "#000000"
+      ctx.fill(path);
+      const line = new Path2D();
+      path.addPath(line)      
+      line.moveTo(x, y)
+      line.lineTo(x - 50, y)
+      ctx.stroke(line);
+      ctx.strokeStyle = "#000000";
+      return path
     }
     function drawOr(x, y, on,ctx = ctxCr) {
       const path = new Path2D();
@@ -290,11 +318,14 @@
       new Logic(cir, 'nor', 325, 75)
       new Logic(cir, 'xor', 482, 0)
       new Logic(cir, 'xnor', 482, 75)
+      new Logic(cir, 'on', 800, 50)
+      new Logic(cir, 'off', 800, 120)
     });
     cCr.addEventListener("mousedown", mousedown);
     cCr.addEventListener("mouseup", mouseup);
     cCr.addEventListener("mousemove", mousemove);
     cPl.addEventListener("mousedown", panelDown);
+    cPl.addEventListener("mouseup", panelUp);
     window.requestAnimationFrame(loop);
   </script>
 

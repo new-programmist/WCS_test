@@ -1,5 +1,5 @@
 const period = 20 // ms
-const ticks_per_draw = 1
+const ticks_per_draw = 2048
 let selected = 0;
 let lastTime = performance.now();
 let x = 0;
@@ -11,7 +11,7 @@ class Draw {
     ctx.clearRect(0, 0, c.width, c.height)
     objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ',' + ctxname + ')');
+      eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
       })
@@ -41,10 +41,12 @@ map.set('off', new MapWithDefault(() => []))
 map.get('off').set('nodes', [[0, 0]])
 map.get('off').set('code', (v, l) => [[false], []])
 map.get('off').set('ins', 0)
+map.get('off').set('path', drawOff(0, 0))
 map.set('on', new MapWithDefault(() => []))
 map.get('on').set('nodes', [[0, 0]])
 map.get('on').set('code', (v, l) => [[true], []])
 map.get('on').set('ins', 0)
+map.get('on').set('path', drawOn(0, 0))
 map.set('buff', new MapWithDefault(() => []))
 map.get('buff').set('nodes', [[71, 40], [187, 40]])
 map.get('buff').set('code', (a, v, l) => [[a], [a]])
@@ -113,6 +115,10 @@ class Connection {
     objs2.get(this.constructor).push(this);
     cir.tick();
   }
+  del() {
+    let arr = objs.get(c1).get(this.constructor)
+    arr = arr.splice(arr.indexOf(self),1)
+  }
 }
 
 class Logic {
@@ -161,6 +167,11 @@ class Logic {
       nod.y = this.y + map.get(this.name).get('nodes')[i][1]
     });
   }
+  del() {
+    let arr = objs.get(c1).get(this.constructor)
+    arr = arr.splice(arr.indexOf(self),1)
+    this.ins.concat(this.outs).forEach((n) => n.del())
+  }
 }
 
 class Node {
@@ -181,6 +192,11 @@ class Node {
   }
   clicked(x, y) {
     return (x - this.x) ** 2 + (y - this.y) ** 2 < 100;
+  }
+  del() {
+    let arr = objs.get(c1).get(this.constructor)
+    arr = arr.splice(arr.indexOf(self),1)
+    this.connected.forEach((con) => con.del())
   }
 }
 
@@ -278,7 +294,11 @@ function mousedown(event) {
       node = clicked_id;
       node_clicked = 1;
     } else {
-      if (node > -1 && node != clicked_id && els[node].connected.concat(els[clicked_id]).length == uniq(els[node].connected.concat(els[clicked_id])).length) new Connection(c1, els[node], els[clicked_id]);
+      if (node > -1 && node != clicked_id && intersection(els[node].connected,els[clicked_id].connected).length == 0) {
+        new Connection(c1, els[node], els[clicked_id]);
+      } else {
+        intersection(els[node].connected,els[clicked_id].connected)[0].del()
+      }
       node_clicked = -1;
       node = -1;
     }
@@ -309,6 +329,7 @@ function mousedown(event) {
 
 function mouseup(event) {
   down = 0;
+  console.log(mousedownID)
   if (mousedownID != -1) {
     clearInterval(mousedownID);
     mousedownID = -1;
@@ -332,6 +353,9 @@ function whilemousedown() {
   }
 }
 
+function intersection(array1,array2) {
+  return array1.filter(value => array2.includes(value));
+}
 
 
 
