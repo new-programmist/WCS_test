@@ -11,6 +11,7 @@ function panelDown(event) {
     const clientX = event.clientX - rect.left
     const clientY = event.clientY - rect.top
 
+
     els.forEach((l, i) => {
       if (l.clicked(clientX, clientY)) {
         clicked_id = i;

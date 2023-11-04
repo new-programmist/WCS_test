@@ -8,15 +8,25 @@ let down = 0;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
+    var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
     objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on, ctx))
     objects.get(Logic).forEach((l) => {
       eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
+        arr.push(n)
         drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
       })
     });
     if(panel) Panel.draw();
+    var i = 0
+    arr.forEach((n) => {
+      if(n.i==node){
+        node = i
+      }
+      n.i=i
+      i++
+    })
   }
 }
 String.prototype.capitalize = function() {
@@ -175,6 +185,28 @@ class Logic {
     this.ins.concat(this.outs).forEach((n) => n.del())
   }
 }
+class LogicCircruit {
+  constructor() {
+    
+  }
+
+  tick() {
+    this.cir.tick
+  }
+
+  clicked(x, y) {
+    return false
+  }
+
+  reset() {
+    
+  }
+  del() {
+    let arr = objs.get(c1).get(Logic)
+    arr.splice(arr.indexOf(self),1)
+    this.ins.concat(this.outs).forEach((n) => n.del())
+  }
+}
 
 class Node {
   constructor(name = null, x = 0, y = 0) {
@@ -207,14 +239,14 @@ class Circruit {
     this.change(save_code);
   }
   change(save_code) {
-    this.save = save_code;
+    this.sve = save_code;
     objs2 = new MapWithDefault(() => []);
     objs.set(this, objs2);
     this.parse(save_code);
 
   }
   add(save_code) {
-    this.save = save_code;
+    this.sve = save_code;
     objs2 = objs.get(this);
     objs.set(this, objs2);
     this.parse(save_code);
@@ -250,9 +282,17 @@ class Circruit {
     }
     return is_on;
   }
+  save() {
+    var s = "(cir) => {\n"
+    s += objs.get(this).get(Logic).map((l) => "  new Logic(cir, '"+l.name+"', "+l.x+", "+l.y+")\n").join("")
+    s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+c.in.i+"], objs2.get(Node)["+c.out.i+"])\n").join("")
+    return(s + "}")
+    return "s"
+  }
 }
 
 function loop(timeStamp) {
+  console.log(c1.save())
   ctxCr.canvas.width = window.innerWidth;
   ctxCr.canvas.height = window.innerHeight - 200;
   ctxPl.canvas.width = window.innerWidth;
@@ -282,6 +322,7 @@ function mousedown(event) {
   const rect = cCr.getBoundingClientRect()
   const clientX = event.clientX - rect.left
   const clientY = event.clientY - rect.top
+
 
   clicked_id = -1;
   els = objs.get(c1).get(Node)
@@ -361,7 +402,7 @@ function whilemousedown() {
   }
 }
 
-function intersection(array1,array2) {
+function intersection(array1, array2) {
   return array1.filter(value => array2.includes(value));
 }
 

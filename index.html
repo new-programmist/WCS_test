@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 
-<body style="margin: 0;">
+<body style="margin: 0; overflow: none;">
 
-  <canvas id="Circuit">
+  <canvas id="Circuit" style="margin: 0;">
     Your browser does not support the HTML5 canvas tag.</canvas>
-  <canvas id="Panel" style="border: 5px solid black">
+  <canvas id="Panel" style="border: 5px solid black;">
     Your browser does not support the HTML5 canvas tag.</canvas>
   
   <script>
@@ -321,11 +321,24 @@
       new Logic(cir, 'on', 800, 50)
       new Logic(cir, 'off', 800, 120)
     });
+    function touchstart(event) { mousedown(event.touches[0]); event.preventDefault(); }
+    function touchmove(event) { mousemove(event.touches[0]); event.preventDefault(); }
+    function touchend(event) { mouseup(event.changedTouches[0]); event.preventDefault(); }
+    function panelTouchStart(event) { panelDown(event.touches[0]); event.preventDefault(); }
+    function panelTouchEnd(event) { panelUp(event.changedTouches[0]); event.preventDefault(); }
+
+    cCr.addEventListener("touchstart", touchstart);
+    cCr.addEventListener("touchmove", touchmove);
+    cCr.addEventListener("touchend", touchend); 
     cCr.addEventListener("mousedown", mousedown);
     cCr.addEventListener("mouseup", mouseup);
     cCr.addEventListener("mousemove", mousemove);
+
     cPl.addEventListener("mousedown", panelDown);
     cPl.addEventListener("mouseup", panelUp);
+    cPl.addEventListener("touchstart", panelTouchStart);
+    cPl.addEventListener("touchend", panelTouchEnd);
+    
     window.requestAnimationFrame(loop);
   </script>
 
