@@ -229,7 +229,7 @@ class Node {
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
-    arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(this),1)
     this.connected.forEach((con) => con.del())
   }
 }
