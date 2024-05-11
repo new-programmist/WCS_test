@@ -7,7 +7,7 @@
     Your browser does not support the HTML5 canvas tag.</canvas>
   <canvas id="Panel" style="border: 5px solid black;">
     Your browser does not support the HTML5 canvas tag.</canvas>
-  
+
   <script>
     var cCr = document.getElementById("Circuit");
     var ctxCr = cCr.getContext("2d");
@@ -38,7 +38,7 @@
       ctx.strokeStyle = on ? "#FF0000" : "#000000"
       ctx.fill(path);
       const line = new Path2D();
-      path.addPath(line)      
+      path.addPath(line)
       line.moveTo(x, y)
       line.lineTo(x + 50, y)
       ctx.stroke(line);
@@ -63,7 +63,7 @@
       ctx.strokeStyle = "#FF0000"
       ctx.fill(path);
       const line = new Path2D();
-      path.addPath(line)      
+      path.addPath(line)
       line.moveTo(x, y)
       line.lineTo(x - 50, y)
       ctx.stroke(line);
@@ -79,7 +79,7 @@
       ctx.strokeStyle = "#000000"
       ctx.fill(path);
       const line = new Path2D();
-      path.addPath(line)      
+      path.addPath(line)
       line.moveTo(x, y)
       line.lineTo(x - 50, y)
       ctx.stroke(line);
@@ -329,7 +329,7 @@
 
     cCr.addEventListener("touchstart", touchstart);
     cCr.addEventListener("touchmove", touchmove);
-    cCr.addEventListener("touchend", touchend); 
+    cCr.addEventListener("touchend", touchend);
     cCr.addEventListener("mousedown", mousedown);
     cCr.addEventListener("mouseup", mouseup);
     cCr.addEventListener("mousemove", mousemove);
@@ -338,7 +338,7 @@
     cPl.addEventListener("mouseup", panelUp);
     cPl.addEventListener("touchstart", panelTouchStart);
     cPl.addEventListener("touchend", panelTouchEnd);
-    
+
     window.requestAnimationFrame(loop);
   </script>
 

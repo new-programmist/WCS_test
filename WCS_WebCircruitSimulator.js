@@ -188,7 +188,7 @@ class Logic {
 }
 class LogicCircruit {
   constructor() {
-    
+
   }
 
   tick() {
@@ -200,7 +200,7 @@ class LogicCircruit {
   }
 
   reset() {
-    
+
   }
   del() {
     let arr = objs.get(c1).get(Logic)
@@ -406,19 +406,3 @@ function whilemousedown() {
 function intersection(array1, array2) {
   return array1.filter(value => array2.includes(value));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
