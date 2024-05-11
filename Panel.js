@@ -17,17 +17,14 @@ function panelDown(event) {
         clicked_id = i;
       }
     })
+
     if (clicked_id > -1) {
       objs2 = objs.get(c1);
       objs.set(c1, objs2);
-      new Logic(c1, els[clicked_id].name, -2147483647, -2147483647)
-      mx = clientX - els[clicked_id].x
-      my = clientY - els[clicked_id].y
-      clicked_id = objs.get(c1).get(Logic).length - 1
-      whilemousedown();
-      mousedownID = setInterval(whilemousedown, 16);
+      new Logic(c1, els[clicked_id].name, 100 + new_element_coord_shift, 100 + new_element_coord_shift);
+      new_element_coord_shift += 10;
+      clicked_id = -1;
     }
-    
 }
 
 function panelUp(event) {
@@ -37,5 +34,4 @@ function panelUp(event) {
     mousedownID = -1;
     objs.get(c1).get(Logic)[clicked_id].del()
   }
-
 }

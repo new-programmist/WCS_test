@@ -5,6 +5,7 @@ let lastTime = performance.now();
 let x = 0;
 let y = 0;
 let down = 0;
+var new_element_coord_shift = 0;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
