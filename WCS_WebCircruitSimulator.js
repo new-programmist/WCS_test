@@ -5,28 +5,23 @@ let lastTime = performance.now();
 let x = 0;
 let y = 0;
 let down = 0;
+let st = 0;
+let sx = 0;
+let sy = 0;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
     var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
-    objects.get(Connection).forEach((w) => drawWire(w.in.x, w.in.y, w.out.x, w.out.y, w.on, ctx))
+    objects.get(Connection).forEach((w) => drawWire(w.in.x - sx, w.in.y - sy, w.out.x - sx, w.out.y - sy, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + l.x + ',' + l.y + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
+      eval('draw' + l.name.capitalize() + '(' + (l.x - sx) + ',' + (l.y - sy) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         arr.push(n)
-        drawNode(n.x, n.y, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
+        drawNode(n.x - sx, n.y - sy, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
       })
     });
     if(panel) Panel.draw();
-    var i = 0
-    arr.forEach((n) => {
-      if(n.i==node){
-        node = i
-      }
-      n.i=i
-      i++
-    })
   }
 }
 String.prototype.capitalize = function() {
@@ -162,7 +157,7 @@ class Logic {
   }
 
   clicked(x, y) {
-    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x, y - this.y);
+    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x + sx, y - this.y + sy);
     return ret;
   }
 
@@ -181,7 +176,7 @@ class Logic {
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
-    arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(this),1)
     this.ins.concat(this.outs).forEach((n) => n.del())
   }
 }
@@ -203,7 +198,7 @@ class LogicCircruit {
   }
   del() {
     let arr = objs.get(c1).get(Logic)
-    arr.splice(arr.indexOf(self),1)
+    arr.splice(arr.indexOf(this),1)
     this.ins.concat(this.outs).forEach((n) => n.del())
   }
 }
@@ -225,7 +220,7 @@ class Node {
     return this.connected.some(x => x.on);
   }
   clicked(x, y) {
-    return (x - this.x) ** 2 + (y - this.y) ** 2 < 100;
+    return (x - this.x + sx) ** 2 + (y - this.y + sy) ** 2 < 100;
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
@@ -317,6 +312,7 @@ function uniq(a) {
 
 function mousedown(event) {
   down = 1;
+  st = 0;
   if (mousedownID != -1) return;
 
   const rect = cCr.getBoundingClientRect()
@@ -364,12 +360,16 @@ function mousedown(event) {
       els.push(els[clicked_id]);
       els.splice(clicked_id, 1);
       clicked_id = els.length - 1;
-      mx = clientX - els[clicked_id].x
-      my = clientY - els[clicked_id].y
+      mx = clientX - els[clicked_id].x + sx
+      my = clientY - els[clicked_id].y + sy
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
     }else{
       selected = 1;
+      mx = - clientX - sx
+      my = - clientY - sy
+      whilemousedown();
+      mousedownID = setInterval(whilemousedown, 16);
     }
   }
 }
@@ -399,6 +399,9 @@ function whilemousedown() {
     els[clicked_id].y = y - my;
     els[clicked_id].reset()
     move = 0
+  } else {
+    sx = - x - mx
+    sy = - y - my
   }
 }
 

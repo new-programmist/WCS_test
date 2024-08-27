@@ -307,7 +307,19 @@
   <script src="WCS_WebCircruitSimulator.js"></script>
   <script src="Panel.js"></script>
   <script>
-    var c1 = new Circruit((cir) => {});
+    var c1 = new Circruit((cir) => {
+  new Logic(cir, 'or', 345, 79)
+  new Logic(cir, 'xnor', 538, 117)
+  new Logic(cir, 'nor', 377, 251)
+  new Logic(cir, 'button', 214, 58)
+  new Logic(cir, 'button', 220, 349)
+  new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[3])
+  new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[4])
+  new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[0])
+  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[1])
+  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[7])
+  new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[6])
+});
     var c2 = new Circruit((cir) => {
       new Logic(cir, 'not', 0, 0)
       new Logic(cir, 'button', 100, 100)
