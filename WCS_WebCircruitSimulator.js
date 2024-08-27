@@ -11,14 +11,22 @@ let sy = 0;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
+    if (panel) {
+      var ssx = sx
+      var ssy = sy
+    } else {
+      var ssx = 0
+      var ssy = 0
+    }
+
     var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
-    objects.get(Connection).forEach((w) => drawWire(w.in.x - sx, w.in.y - sy, w.out.x - sx, w.out.y - sy, w.on, ctx))
+    objects.get(Connection).forEach((w) => drawWire(w.in.x - ssx, w.in.y - ssy, w.out.x - ssx, w.out.y - ssy, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + (l.x - sx) + ',' + (l.y - sy) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
+      eval('draw' + l.name.capitalize() + '(' + (l.x - ssx) + ',' + (l.y - ssy) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         arr.push(n)
-        drawNode(n.x - sx, n.y - sy, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
+        drawNode(n.x - ssx, n.y - ssy, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
       })
     });
     if(panel) Panel.draw();
@@ -132,6 +140,7 @@ class Logic {
   constructor(cir, name = '', x = 0, y = 0, ins = map.get(name).get('ins'), outs = map.get(name).get('nodes').length - map.get(name).get('ins'), code = map.get(name).get('code')) {
     let i = -1
     this.name = name
+    this.cir = cir
     this.vars = new MapWithDefault(() => false);
     this.ins = Array.from({
       length: ins
@@ -157,7 +166,15 @@ class Logic {
   }
 
   clicked(x, y) {
-    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x + sx, y - this.y + sy);
+    if (this.isPanel()) {
+      var ssx = 0
+      var ssy = 0
+    } else {
+      var ssx = sx
+      var ssy = sy
+    }
+
+    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x + ssx, y - this.y + ssy);
     return ret;
   }
 
@@ -178,6 +195,10 @@ class Logic {
     let arr = objs.get(c1).get(this.constructor)
     arr.splice(arr.indexOf(this),1)
     this.ins.concat(this.outs).forEach((n) => n.del())
+  }
+
+  isPanel() {
+    return this.cir.panel
   }
 }
 class LogicCircruit {
@@ -230,8 +251,9 @@ class Node {
 }
 
 class Circruit {
-  constructor(save_code) {
+  constructor(save_code, panel = false) {
     this.change(save_code);
+    this.panel = panel;
   }
   change(save_code) {
     this.sve = save_code;
@@ -283,6 +305,10 @@ class Circruit {
     s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+c.in.i+"], objs2.get(Node)["+c.out.i+"])\n").join("")
     return(s + "}")
     return "s"
+  }
+
+  isPanel() {
+    return this.panel
   }
 }
 
