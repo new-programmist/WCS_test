@@ -1,5 +1,6 @@
 const period = 20 // ms
 const ticks_per_draw = 1
+let d = new Date();
 let selected = 0;
 let lastTime = performance.now();
 let x = 0;
@@ -109,6 +110,15 @@ map.get('button').set('code', (v, l) => {
 })
 map.get('button').set('ins', 0)
 map.get('button').set('path', drawButton(0, 0, 0))
+map.set('time', new MapWithDefault(() => []))
+map.get('time').set('nodes', [[50, 0]])
+map.get('time').set('code', (v, l) => {
+  let d = new Date();
+  v.set(0,((d.getTime() / 500 % 2) > 1)? 0 : 1)
+  return [[v.get(0)], [v.get(0)]]
+})
+map.get('time').set('ins', 0)
+map.get('time').set('path', drawTime(0, 0, 0))
 
 class Connection {
   constructor(cir, node1, node2) {
