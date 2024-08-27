@@ -20,8 +20,9 @@ function panelDown(event) {
     if (clicked_id > -1) {
       objs2 = objs.get(c1);
       objs.set(c1, objs2);
-      new Logic(c1, els[clicked_id].name, st, st);
-      st += 20;
+      new Logic(c1, els[clicked_id].name, stx, sty);
+      stx += 20;
+      sty += 20;
       mx = clientX - els[clicked_id].x;
       my = clientY - els[clicked_id].y;
       clicked_id = objs.get(c1).get(Logic).length - 1

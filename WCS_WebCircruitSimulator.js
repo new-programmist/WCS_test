@@ -5,7 +5,8 @@ let lastTime = performance.now();
 let x = 0;
 let y = 0;
 let down = 0;
-let st = 0;
+let stx = 0;
+let sty = 0;
 let sx = 0;
 let sy = 0;
 
@@ -338,7 +339,8 @@ function uniq(a) {
 
 function mousedown(event) {
   down = 1;
-  st = 0;
+  stx = sx;
+  sty = sy;
   if (mousedownID != -1) return;
 
   const rect = cCr.getBoundingClientRect()
