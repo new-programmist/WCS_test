@@ -301,6 +301,46 @@
       return path;
     }
 
+    function drawVertseg(x, y, on,ctx = ctxCr) {
+      const path = new Path2D();
+      path.moveTo(x, y - 35);
+      path.lineTo(x - 6, y - 29);
+      path.lineTo(x - 6, y + 9);
+      path.lineTo(x, y + 15);
+      path.lineTo(x + 6, y + 9);
+      path.lineTo(x + 6, y - 29);
+      ctx.fillStyle = on ? "#FF0000" : "#000000"
+      ctx.strokeStyle = on ? "#FF0000" : "#000000"
+      ctx.fill(path);
+      const line = new Path2D();
+      path.addPath(line)      
+      line.moveTo(x, y + 10)
+      line.lineTo(x, y + 30)
+      ctx.stroke(line);
+      ctx.strokeStyle = "#000000";
+      return path;
+    }
+
+    function drawHoriseg(x, y, on,ctx = ctxCr) {
+      const path = new Path2D();
+      path.moveTo(x - 35, y);
+      path.lineTo(x - 29, y - 6);
+      path.lineTo(x + 9, y - 6);
+      path.lineTo(x + 15, y);
+      path.lineTo(x + 9, y + 6);
+      path.lineTo(x - 29, y + 6);
+      ctx.fillStyle = on ? "#FF0000" : "#000000"
+      ctx.strokeStyle = on ? "#FF0000" : "#000000"
+      ctx.fill(path);
+      const line = new Path2D();
+      path.addPath(line)      
+      line.moveTo(x + 10, y)
+      line.lineTo(x + 30, y)
+      ctx.stroke(line);
+      ctx.strokeStyle = "#000000";
+      return path;
+    }
+
 
 
   </script>
@@ -332,6 +372,8 @@
       new Logic(cir, 'xnor', 482, 75)
       new Logic(cir, 'on', 800, 50)
       new Logic(cir, 'off', 800, 120)
+      new Logic(cir, 'horiseg', 900, 60)
+      new Logic(cir, 'vertseg', 900, 120)
     }, true);
     function touchstart(event) { mousedown(event.touches[0]); event.preventDefault(); }
     function touchmove(event) { mousemove(event.touches[0]); event.preventDefault(); }

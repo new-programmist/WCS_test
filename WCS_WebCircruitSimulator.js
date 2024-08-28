@@ -118,6 +118,16 @@ map.get('button').set('code', (v, l) => {
 })
 map.get('button').set('ins', 0)
 map.get('button').set('path', drawButton(0, 0, 0))
+map.set('vertseg', new MapWithDefault(() => []))
+map.get('vertseg').set('nodes', [[0, 30]])
+map.get('vertseg').set('code', (a, v, l) => [[],[a == 1]])
+map.get('vertseg').set('ins', 1)
+map.get('vertseg').set('path', drawVertseg(0, 0, 0))
+map.set('horiseg', new MapWithDefault(() => []))
+map.get('horiseg').set('nodes', [[30, 0]])
+map.get('horiseg').set('code', (a, v, l) => [[],[a == 1]])
+map.get('horiseg').set('ins', 1)
+map.get('horiseg').set('path', drawHoriseg(0, 0, 0))
 
 class Connection {
   constructor(cir, node1, node2) {
@@ -339,8 +349,6 @@ function uniq(a) {
 
 function mousedown(event) {
   down = 1;
-  stx = sx;
-  sty = sy;
   if (mousedownID != -1) return;
 
   const rect = cCr.getBoundingClientRect()
@@ -388,8 +396,8 @@ function mousedown(event) {
       els.push(els[clicked_id]);
       els.splice(clicked_id, 1);
       clicked_id = els.length - 1;
-      mx = clientX - els[clicked_id].x + sx
-      my = clientY - els[clicked_id].y + sy
+      mx = clientX - els[clicked_id].x //+ sx
+      my = clientY - els[clicked_id].y //+ sy
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
     }else{
@@ -421,16 +429,19 @@ function mousemove(event) {
 
 function whilemousedown() {
   els = objs.get(c1).get(Logic)
-
-  if (clicked_id > -1 && move == 1) {
-    els[clicked_id].x = x - mx;
-    els[clicked_id].y = y - my;
-    els[clicked_id].reset()
-    move = 0
-  } else {
-    sx = - x - mx
-    sy = - y - my
+  if (move == 1) {
+    if (clicked_id > -1) {
+      els[clicked_id].x = x - mx;
+      els[clicked_id].y = y - my;
+      els[clicked_id].reset()
+      move = 0
+    } else {
+      sx = - x - mx
+      sy = - y - my
+    }
   }
+  stx = sx+30;
+  sty = sy+30;
 }
 
 function intersection(array1, array2) {
