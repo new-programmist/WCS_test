@@ -58,52 +58,52 @@ map.set('off', new MapWithDefault(() => []))
 map.get('off').set('nodes', [[0, 0]])
 map.get('off').set('code', (v, l) => [[false], []])
 map.get('off').set('ins', 0)
-map.get('off').set('path', drawOff(0, 0))
+map.get('off').set('path', drawOff(0, 0, ctxCr, 1))
 map.set('on', new MapWithDefault(() => []))
 map.get('on').set('nodes', [[0, 0]])
 map.get('on').set('code', (v, l) => [[true], []])
 map.get('on').set('ins', 0)
-map.get('on').set('path', drawOn(0, 0))
+map.get('on').set('path', drawOn(0, 0, ctxCr, 1))
 map.set('buff', new MapWithDefault(() => []))
 map.get('buff').set('nodes', [[71, 40], [187, 40]])
 map.get('buff').set('code', (a, v, l) => [[a], [a]])
 map.get('buff').set('ins', 1)
-map.get('buff').set('path', drawBuff(0, 0, 0))
+map.get('buff').set('path', drawBuff(0, 0, 0, ctxCr, 1))
 map.set('not', new MapWithDefault(() => []))
 map.get('not').set('nodes', [[71, 40], [187, 40]])
 map.get('not').set('code', (a, v, l) => [[!a], [!a]])
 map.get('not').set('ins', 1)
-map.get('not').set('path', drawNot(0, 0, 0))
+map.get('not').set('path', drawNot(0, 0, 0, ctxCr, 1))
 map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('or').set('code', (a, b, v, l) => [[a || b], [a || b]])
 map.get('or').set('ins', 2)
-map.get('or').set('path', drawOr(0, 0, 0))
+map.get('or').set('path', drawOr(0, 0, 0, ctxCr, 1))
 map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nor').set('code', (a, b, v, l) => [[!(a || b)], [!(a || b)]])
 map.get('nor').set('ins', 2)
-map.get('nor').set('path', drawNor(0, 0, 0))
+map.get('nor').set('path', drawNor(0, 0, 0, ctxCr, 1))
 map.set('and', new MapWithDefault(() => []))
 map.get('and').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('and').set('code', (a, b, v, l) => [[a && b], [a && b]])
 map.get('and').set('ins', 2)
-map.get('and').set('path', drawAnd(0, 0, 0))
+map.get('and').set('path', drawAnd(0, 0, 0, ctxCr, 1))
 map.set('nand', new MapWithDefault(() => []))
 map.get('nand').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nand').set('code', (a, b, v, l) => [[!(a && b)], [!(a && b)]])
 map.get('nand').set('ins', 2)
-map.get('nand').set('path', drawNand(0, 0, 0))
+map.get('nand').set('path', drawNand(0, 0, 0, ctxCr, 1))
 map.set('xor', new MapWithDefault(() => []))
 map.get('xor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xor').set('code', (a, b, v, l) => [[(a ^ b) == 1], [(a ^ b) == 1]])
 map.get('xor').set('ins', 2)
-map.get('xor').set('path', drawXor(0, 0, 0))
+map.get('xor').set('path', drawXor(0, 0, 0, ctxCr, 1))
 map.set('xnor', new MapWithDefault(() => []))
 map.get('xnor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xnor').set('code', (a, b, v, l) => [[(a ^ b) == 0], [(a ^ b) == 0]])
 map.get('xnor').set('ins', 2)
-map.get('xnor').set('path', drawXnor(0, 0, 0))
+map.get('xnor').set('path', drawXnor(0, 0, 0, ctxCr, 1))
 map.set('button', new MapWithDefault(() => []))
 map.get('button').set('nodes', [[50, 0]])
 map.get('button').set('code', (v, l) => {
@@ -120,17 +120,17 @@ map.get('button').set('code', (v, l) => {
   return [[v.get(0)], [v.get(0)]]
 })
 map.get('button').set('ins', 0)
-map.get('button').set('path', drawButton(0, 0, 0))
+map.get('button').set('path', drawButton(0, 0, 0, ctxCr, 1))
 map.set('vertseg', new MapWithDefault(() => []))
 map.get('vertseg').set('nodes', [[0, 30]])
 map.get('vertseg').set('code', (a, v, l) => [[],[a == 1]])
 map.get('vertseg').set('ins', 1)
-map.get('vertseg').set('path', drawVertseg(0, 0, 0))
+map.get('vertseg').set('path', drawVertseg(0, 0, 0, ctxCr, 1))
 map.set('horiseg', new MapWithDefault(() => []))
 map.get('horiseg').set('nodes', [[30, 0]])
 map.get('horiseg').set('code', (a, v, l) => [[],[a == 1]])
 map.get('horiseg').set('ins', 1)
-map.get('horiseg').set('path', drawHoriseg(0, 0, 0))
+map.get('horiseg').set('path', drawHoriseg(0, 0, 0, ctxCr, 1))
 
 class Connection {
   constructor(cir, node1, node2) {
@@ -190,7 +190,7 @@ class Logic {
       var ssz = sz
     }
 
-    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x + ssx, y - this.y + ssy);
+    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x*sz - this.x + ssx, y*sz - this.y + ssy);
     return ret;
   }
 
@@ -257,7 +257,7 @@ class Node {
     return this.connected.some(x => x.on);
   }
   clicked(x, y) {
-    return (x - this.x + sx) ** 2 + (y - this.y + sy) ** 2 < 100;
+    return (x*sz - this.x + sx) ** 2 + (y*sz - this.y + sy) ** 2 < 100;
   }
   del() {
     let arr = objs.get(c1).get(this.constructor)
@@ -413,8 +413,8 @@ function mousedown(event) {
       els.push(els[clicked_id]);
       els.splice(clicked_id, 1);
       clicked_id = els.length - 1;
-      mx = clientX - els[clicked_id].x //+ sx
-      my = clientY - els[clicked_id].y //+ sy
+      mx = clientX - els[clicked_id].x / sz //+ sx
+      my = clientY - els[clicked_id].y / sz //+ sy
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
     }else{
@@ -448,8 +448,8 @@ function whilemousedown() {
   els = objs.get(c1).get(Logic)
   if (move == 1) {
     if (clicked_id > -1) {
-      els[clicked_id].x = x - mx;
-      els[clicked_id].y = y - my;
+      els[clicked_id].x = (x - mx)*sz;
+      els[clicked_id].y = (y - my)*sz;
       els[clicked_id].reset()
       move = 0
     } else {
