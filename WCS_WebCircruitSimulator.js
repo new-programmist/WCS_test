@@ -9,7 +9,7 @@ let stx = 0;
 let sty = 0;
 let sx = 0;
 let sy = 0;
-let sz = 1;
+let sz = 1.5;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
@@ -190,7 +190,7 @@ class Logic {
       var ssz = sz
     }
 
-    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x*sz - this.x + ssx, y*sz - this.y + ssy);
+    const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x*ssz - this.x + ssx, y*ssz - this.y + ssy);
     return ret;
   }
 
@@ -448,8 +448,8 @@ function whilemousedown() {
   els = objs.get(c1).get(Logic)
   if (move == 1) {
     if (clicked_id > -1) {
-      els[clicked_id].x = (x - mx)*sz;
-      els[clicked_id].y = (y - my)*sz;
+      els[clicked_id].x = Math.round((x - mx)*sz);
+      els[clicked_id].y = Math.round((y - my)*sz);
       els[clicked_id].reset()
       move = 0
     } else {
