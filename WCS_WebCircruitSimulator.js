@@ -9,25 +9,28 @@ let stx = 0;
 let sty = 0;
 let sx = 0;
 let sy = 0;
+let sz = 1;
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
     if (panel) {
       var ssx = sx
       var ssy = sy
+      var ssz = sz
     } else {
       var ssx = 0
       var ssy = 0
+      var ssz = 1
     }
 
     var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
-    objects.get(Connection).forEach((w) => drawWire(w.in.x - ssx, w.in.y - ssy, w.out.x - ssx, w.out.y - ssy, w.on, ctx))
+    objects.get(Connection).forEach((w) => drawWire((w.in.x - ssx)/ssz, (w.in.y - ssy)/ssz, (w.out.x - ssx)/ssz, (w.out.y - ssy)/ssz, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + (l.x - ssx) + ',' + (l.y - ssy) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ')');
+      eval('draw' + l.name.capitalize() + '(' + ((l.x - ssx)/ssz) + ',' + ((l.y - ssy)/ssz) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ',' + ssz + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         arr.push(n)
-        drawNode(n.x - ssx, n.y - ssy, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx)
+        drawNode((n.x - ssx)/ssz, (n.y - ssy)/ssz, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx, ssz)
       })
     });
     if(panel) Panel.draw();
@@ -108,7 +111,7 @@ map.get('button').set('code', (v, l) => {
     v.set(1,0)
     selected = 0
   }else{
-    if(((x-l.x)**2+(y-l.y)**2 < 900) && (v.get(1) == 0) && (selected == 0)){
+    if((l.clicked(x,y)) && (v.get(1) == 0) && (selected == 0)){
       v.set(0,!v.get(0))
       v.set(1,1)
       selected = 1
@@ -180,9 +183,11 @@ class Logic {
     if (this.isPanel()) {
       var ssx = 0
       var ssy = 0
+      var ssz = 1
     } else {
       var ssx = sx
       var ssy = sy
+      var ssz = sz
     }
 
     const ret = ctxCr.isPointInPath(map.get(this.name).get('path'), x - this.x + ssx, y - this.y + ssy);
@@ -311,9 +316,21 @@ class Circruit {
     return is_on;
   }
   save() {
+    var id_map = new MapWithDefault(() => 0)
+    var k = 0
+    objs.get(this).get(Logic).forEach((ele) => {
+      ele.ins.forEach((node) => {
+        id_map.set(node.i,k)
+        k += 1
+      })
+      ele.outs.forEach((node) => {
+        id_map.set(node.i,k)
+        k += 1
+      })
+    })
     var s = "(cir) => {\n"
     s += objs.get(this).get(Logic).map((l) => "  new Logic(cir, '"+l.name+"', "+l.x+", "+l.y+")\n").join("")
-    s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+c.in.i+"], objs2.get(Node)["+c.out.i+"])\n").join("")
+    s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+id_map.get(c.in.i)+"], objs2.get(Node)["+id_map.get(c.out.i)+"])\n").join("")
     return(s + "}")
     return "s"
   }
@@ -402,8 +419,8 @@ function mousedown(event) {
       mousedownID = setInterval(whilemousedown, 16);
     }else{
       selected = 1;
-      mx = - clientX - sx
-      my = - clientY - sy
+      mx = - clientX - sx / sz
+      my = - clientY - sy / sz
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
     }
@@ -436,8 +453,8 @@ function whilemousedown() {
       els[clicked_id].reset()
       move = 0
     } else {
-      sx = - x - mx
-      sy = - y - my
+      sx = (- x - mx) * sz
+      sy = (- y - my) * sz
     }
   }
   stx = sx+30;
