@@ -9,7 +9,10 @@ let stx = 0;
 let sty = 0;
 let sx = 0;
 let sy = 0;
-let sz = 1.5;
+let sz = 1;
+let szx = 1;
+let zoomin = drawZoomIn(false)
+let zoomout = drawZoomOut(false)
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
@@ -33,6 +36,8 @@ class Draw {
         drawNode((n.x - ssx)/ssz, (n.y - ssy)/ssz, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx, ssz)
       })
     });
+    drawZoomIn(szx == 1/1.005)
+    drawZoomOut(szx == 1.005)
     if(panel) Panel.draw();
   }
 }
@@ -366,12 +371,24 @@ function uniq(a) {
 
 function mousedown(event) {
   down = 1;
+  
+  
   if (mousedownID != -1) return;
-
+  szx = 1
   const rect = cCr.getBoundingClientRect()
   const clientX = event.clientX - rect.left
   const clientY = event.clientY - rect.top
-
+  if (ctxCr.isPointInPath(zoomin, clientX, clientY)) {
+    sz = sz / 1.005
+    szx = 1 / 1.005
+    whilemousedown();
+    mousedownID = setInterval(whilemousedown, 16);
+  } else { if (ctxCr.isPointInPath(zoomout, clientX, clientY)) {
+    sz = sz * 1.005
+    szx = 1.005
+    whilemousedown();
+    mousedownID = setInterval(whilemousedown, 16);
+  } else {
 
   clicked_id = -1;
   els = objs.get(c1).get(Node)
@@ -425,6 +442,8 @@ function mousedown(event) {
       mousedownID = setInterval(whilemousedown, 16);
     }
   }
+  }
+  }
 }
 
 function mouseup(event) {
@@ -434,7 +453,7 @@ function mouseup(event) {
     mousedownID = -1;
     move = 0
   }
-
+  szx = 1
 }
 
 function mousemove(event) {
@@ -445,6 +464,7 @@ function mousemove(event) {
 }
 
 function whilemousedown() {
+  if (szx == 1) {
   els = objs.get(c1).get(Logic)
   if (move == 1) {
     if (clicked_id > -1) {
@@ -459,6 +479,9 @@ function whilemousedown() {
   }
   stx = sx+30;
   sty = sy+30;
+  } else {
+    sz = szx * sz
+  }
 }
 
 function intersection(array1, array2) {
