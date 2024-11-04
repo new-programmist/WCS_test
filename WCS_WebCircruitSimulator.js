@@ -14,25 +14,8 @@ let szx = 1;
 let zoomin = drawZoomIn(false)
 let zoomout = drawZoomOut(false)
 
-class MapWithDefault extends Map {
-  constructor(setDefaultValue, entries) {
-    super(entries);
-    this.setDefaultValue = setDefaultValue;
-  }
-  get(key) {
-    if (!this.has(key)) {
-      this.set(key, this.setDefaultValue());
-    }
-    return super.get(key);
-  }
-}
-
-var id_map = new MapWithDefault(() => 0)
-var k = 0
-
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
-    defineIdMap(objects)
     if (panel) {
       var ssx = sx
       var ssy = sy
@@ -50,7 +33,7 @@ class Draw {
       eval('draw' + l.name.capitalize() + '(' + ((l.x - ssx)/ssz) + ',' + ((l.y - ssy)/ssz) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ',' + ssz + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         arr.push(n)
-        drawNode((n.x - ssx)/ssz, (n.y - ssy)/ssz, n.on || n.onConnected(), id_map.get(n.i) == node && ctxname == 'ctxCr', ctx, ssz)
+        drawNode((n.x - ssx)/ssz, (n.y - ssy)/ssz, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx, ssz)
       })
     });
     drawZoomIn(szx == 1/1.005)
@@ -61,7 +44,18 @@ class Draw {
 String.prototype.capitalize = function() {
   return this.charAt(0).toUpperCase() + this.slice(1);
 }
-
+class MapWithDefault extends Map {
+  constructor(setDefaultValue, entries) {
+    super(entries);
+    this.setDefaultValue = setDefaultValue;
+  }
+  get(key) {
+    if (!this.has(key)) {
+      this.set(key, this.setDefaultValue());
+    }
+    return super.get(key);
+  }
+}
 let objs = new MapWithDefault(() => new MapWithDefault(() => []));
 let objs2 = null
 let map = new Map()
@@ -327,7 +321,18 @@ class Circruit {
     return is_on;
   }
   save() {
-    defineIdMap(objs.get(this))
+    var id_map = new MapWithDefault(() => 0)
+    var k = 0
+    objs.get(this).get(Logic).forEach((ele) => {
+      ele.ins.forEach((node) => {
+        id_map.set(node.i,k)
+        k += 1
+      })
+      ele.outs.forEach((node) => {
+        id_map.set(node.i,k)
+        k += 1
+      })
+    })
     var s = "(cir) => {\n"
     s += objs.get(this).get(Logic).map((l) => "  new Logic(cir, '"+l.name+"', "+l.x+", "+l.y+")\n").join("")
     s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+id_map.get(c.in.i)+"], objs2.get(Node)["+id_map.get(c.out.i)+"])\n").join("")
@@ -338,20 +343,6 @@ class Circruit {
   isPanel() {
     return this.panel
   }
-}
-function defineIdMap(cir) {
-  id_map = new MapWithDefault(() => 0)
-  k = 0
-  cir.get(Logic).forEach((ele) => {
-    ele.ins.forEach((node) => {
-      id_map.set(node.i,k)
-      k += 1
-    })
-    ele.outs.forEach((node) => {
-      id_map.set(node.i,k)
-      k += 1
-    })
-  })
 }
 
 function loop(timeStamp) {
@@ -401,6 +392,7 @@ function mousedown(event) {
 
   clicked_id = -1;
   els = objs.get(c1).get(Node)
+
   els.forEach((l, i) => {
     if (l.clicked(clientX, clientY)) {
       clicked_id = i;
