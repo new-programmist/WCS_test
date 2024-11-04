@@ -13,7 +13,6 @@ let sz = 1;
 let szx = 1;
 let zoomin = drawZoomIn(false)
 let zoomout = drawZoomOut(false)
-let last_node_id = 0;
 
 class MapWithDefault extends Map {
   constructor(setDefaultValue, entries) {
@@ -29,6 +28,7 @@ class MapWithDefault extends Map {
 }
 
 var id_map = new MapWithDefault(() => 0)
+var k = 0
 
 class Draw {
   static drawall(objects,panel = true,c = cCr,ctx = ctxCr,ctxname = 'ctxCr') {
@@ -45,7 +45,7 @@ class Draw {
 
     var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
-    objects.get(Connection).forEach((w) => drawWire((objs.get(w.cir).get(Node)[id_map.get(w.in)].x - ssx)/ssz, (objs.get(w.cir).get(Node)[id_map.get(w.in)].y - ssy)/ssz, (objs.get(w.cir).get(Node)[id_map.get(w.out)].x - ssx)/ssz, (objs.get(w.cir).get(Node)[id_map.get(w.out)].y - ssy)/ssz, w.on, ctx))
+    objects.get(Connection).forEach((w) => drawWire((w.in.x - ssx)/ssz, (w.in.y - ssy)/ssz, (w.out.x - ssx)/ssz, (w.out.y - ssy)/ssz, w.on, ctx))
     objects.get(Logic).forEach((l) => {
       eval('draw' + l.name.capitalize() + '(' + ((l.x - ssx)/ssz) + ',' + ((l.y - ssy)/ssz) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ',' + ssz + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
@@ -147,19 +147,17 @@ class Connection {
   constructor(cir, node1, node2) {
     node1.connect(this);
     node2.connect(this);
-    this.in = node1.i;
-    this.out = node2.i;
+    this.in = node1;
+    this.out = node2;
     this.on = false;
-    this.cir = cir;
     objs2.get(this.constructor).push(this);
     cir.tick();
   }
   del() {
-    defineIdMap(this.cir)
     let arr = objs.get(c1).get(this.constructor)
     arr.splice(arr.indexOf(this),1)
     objs.get(c1).set(this.constructor,arr)
-    new Array(id_map.get(this.in),id_map.get(this.out)).forEach((n) => objs.get(n).connected.splice(n.connected.indexOf(this),1))
+    new Array(this.in,this.out).forEach((n) => n.connected.splice(n.connected.indexOf(this),1))
   }
 }
 
@@ -259,7 +257,7 @@ class Node {
     this.connected = [];
     this.x = x;
     this.y = y;
-    this.i = last_node_id += 1;
+    this.i = objs2.get(this.constructor).length
     this.on = false;
     objs2.get(this.constructor).push(this);
   }
@@ -317,9 +315,8 @@ class Circruit {
     Draw.drawall(objs.get(this))
   }
   collect_connected_cons(con, connected_cons, visited) {
-    defineIdMap(objs.get(this));
-    const cons = objs.get(con.cir).get(Node)[id_map.get(con.in)].connected.concat(objs.get(con.cir).get(Node)[id_map.get(con.out)].connected);
-    let is_on = objs.get(con.cir).get(Node)[id_map.get(con.in)].on || objs.get(con.cir).get(Node)[id_map.get(con.out)].on;
+    const cons = con.in.connected.concat(con.out.connected);
+    let is_on = con.in.on || con.out.on;
     if (!connected_cons.has(con)) {
       connected_cons.add(con);
       visited.add(con);
@@ -333,7 +330,7 @@ class Circruit {
     defineIdMap(objs.get(this))
     var s = "(cir) => {\n"
     s += objs.get(this).get(Logic).map((l) => "  new Logic(cir, '"+l.name+"', "+l.x+", "+l.y+")\n").join("")
-    s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+id_map.get(c.in)+"], objs2.get(Node)["+id_map.get(c.out.i)+"])\n").join("")
+    s += objs.get(this).get(Connection).map((c) => "  new Connection(cir, objs2.get(Node)["+id_map.get(c.in.i)+"], objs2.get(Node)["+id_map.get(c.out.i)+"])\n").join("")
     return(s + "}")
     return "s"
   }
@@ -344,7 +341,7 @@ class Circruit {
 }
 function defineIdMap(cir) {
   id_map = new MapWithDefault(() => 0)
-  let k = 0
+  k = 0
   cir.get(Logic).forEach((ele) => {
     ele.ins.forEach((node) => {
       id_map.set(node.i,k)
