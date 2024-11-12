@@ -3,9 +3,9 @@
 
 <body style="margin: 0; overflow: none;">
 
-  <canvas id="Circuit" style="margin: 0;">
+  <canvas id="Circuit" style="margin: 0;background: #555555;">
     Your browser does not support the HTML5 canvas tag.</canvas>
-  <canvas id="Panel" style="border: 5px solid black;">
+  <canvas id="Panel" style="border: 5px solid black;background: #555555;">
     Your browser does not support the HTML5 canvas tag.</canvas>
   
   <script>
@@ -16,13 +16,16 @@
     var white = "#FFFFFF"
     var black = "#000000"
     var red = "#FF0000"
+    var wgray = "#BBBBBB"
+    var bgray = "#555555"
 
     function drawZoomIn(on, ctx = ctxCr) {
       const path = new Path2D();
       const x = 30
       const y = 30
 
-      ctx.fillStyle = (on ? "#BBBBBB" : "#FFFFFF");
+      ctx.fillStyle = black;
+      ctx.strokeStyle = (on ? wgray : white);
       ctx.lineWidth = 2;
       path.moveTo(45 + x, (0 + y));
       path.arcTo((50 + x), (0 + y), (50 + x), (5 + y), 5);
@@ -46,7 +49,8 @@
       const x = 30
       const y = 85
 
-      ctx.fillStyle = (on ? "#BBBBBB" : "#FFFFFF");
+      ctx.fillStyle = black;
+      ctx.strokeStyle = (on ? wgray : white);
       ctx.lineWidth = 2;
       path.moveTo(45 + x, (0 + y));
       path.arcTo((50 + x), (0 + y), (50 + x), (5 + y), 5);
@@ -72,7 +76,7 @@
         [(dx > dy) ? (x1 + x2) / 2 : x2, (dx > dy) ? y2 : (y1 + y2) / 2],
         [x2, y2],
       ]
-      ctx.strokeStyle = on ? red : black;
+      ctx.strokeStyle = on ? red : white;
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       points.forEach(([x, y]) => ctx.lineTo(x, y))
@@ -81,24 +85,29 @@
     }
     function drawButton( x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
-      path.moveTo(x, y)
-      path.arc(x, y, 30/size, 0, 2 * Math.PI);
+      ctx.lineWidth = 2;
+      path.moveTo(x + 30/size, y)
+      path.arcTo(x + 30/size, y + 30/size, x, y + 30/size, 30 / size);
+      path.arcTo(x - 30/size, y + 30/size, x - 30/size, y, 30 / size);
+      path.arcTo(x - 30/size, y - 30/size, x, y - 30/size, 30 / size);
+      path.arcTo(x + 30/size, y - 30/size, x + 30/size, y, 30 / size);
       ctx.fillStyle = on ? red : black
-      ctx.strokeStyle = on ? red : black
+      ctx.strokeStyle = white
       ctx.fill(path);
+      ctx.stroke(path);
       const line = new Path2D();
       path.addPath(line)      
-      line.moveTo(x, y)
+      line.moveTo(x + 30/size, y)
       line.lineTo(x + 50/size, y)
+      ctx.strokeStyle = white;
       ctx.stroke(line);
-      ctx.strokeStyle = black;
       return path;
     }
     function drawNode( x, y, on, clicked,ctx = ctxCr,size) {
       const path = new Path2D();
       path.moveTo(x, y)
       path.arc(x, y, (clicked ? 10 : 4.5)/size, 0, 2 * Math.PI);
-      ctx.fillStyle = clicked ? "#00FF00" : on ? red : black;
+      ctx.fillStyle = clicked ? "#00FF00" : on ? red : white;
       ctx.fill(path);
 
       return path;
@@ -138,7 +147,8 @@
     function drawOr(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo(100/size + x, 20/size + y);
       path.arcTo(150/size + x, 20/size + y, 150/size + x, 40/size + y, 20/size);
@@ -160,7 +170,8 @@
     function drawNor(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo(100/size + x, 20/size + y);
       path.arcTo(150/size + x, 20/size + y, 150/size + x, 40/size + y, 20/size);
@@ -181,17 +192,18 @@
       path.addPath(dot)
 
       dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = white;
+      ctx.fillStyle = bgray;
       ctx.fill(dot);
       ctx.stroke(dot);
 
       return path;
-    } // [[70, 33], [70, 47], [187, 40]]
+    }
 
     function drawAnd(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo(100/size + x, (20/size + y));
       path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
@@ -212,7 +224,8 @@
     function drawXor(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo((92/size + x), (20/size + y));
       path.lineTo((100/size + x), (20/size + y));
@@ -239,7 +252,8 @@
     function drawNand(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo(100/size + x, (20/size + y));
       path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
@@ -260,7 +274,7 @@
       path.addPath(dot)
 
       dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = white;
+      ctx.fillStyle = bgray;
       ctx.fill(dot);
       ctx.stroke(dot);
 
@@ -270,7 +284,8 @@
     function drawXnor(x, y, on,ctx = ctxCr, size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo((92/size + x), (20/size + y));
       path.lineTo((100/size + x), (20/size + y));
@@ -296,7 +311,7 @@
       path.addPath(dot)
 
       dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = white;
+      ctx.fillStyle = bgray;
       ctx.fill(dot);
       ctx.stroke(dot);
 
@@ -306,7 +321,8 @@
     function drawBuff(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo((99/size + x), (20/size + y));
       path.lineTo((150/size + x), (40/size + y));
@@ -325,7 +341,8 @@
     function drawNot(x, y, on,ctx = ctxCr,size) {
       const path = new Path2D();
 
-      ctx.fillStyle = (on ? red : white);
+      ctx.fillStyle = (on ? red : bgray);
+      ctx.strokeStyle = white;
       ctx.lineWidth = 2;
       path.moveTo((99/size + x), (20/size + y));
       path.lineTo((150/size + x), (40/size + y));
@@ -343,7 +360,7 @@
       path.addPath(dot)
 
       dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = white;
+      ctx.fillStyle = bgray;
       ctx.fill(dot);
       ctx.stroke(dot);
 
