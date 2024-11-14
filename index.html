@@ -8,751 +8,350 @@
   <canvas id="Panel" style="border: 5px solid black;background: #555555;">
     Your browser does not support the HTML5 canvas tag.</canvas>
   
-  <script>
-    var cCr = document.getElementById("Circuit");
-    var ctxCr = cCr.getContext("2d");
-    var cPl = document.getElementById("Panel");
-    var ctxPl = cPl.getContext("2d");
-    var white = "#FFFFFF"
-    var black = "#000000"
-    var red = "#FF0000"
-    var wgray = "#BBBBBB"
-    var bgray = "#555555"
-
-    function drawZoomIn(on, ctx = ctxCr) {
-      const path = new Path2D();
-      const x = 30
-      const y = 30
-
-      ctx.fillStyle = black;
-      ctx.strokeStyle = (on ? wgray : white);
-      ctx.lineWidth = 2;
-      path.moveTo(45 + x, (0 + y));
-      path.arcTo((50 + x), (0 + y), (50 + x), (5 + y), 5);
-      path.lineTo((50 + x), (45 + y));
-      path.arcTo((50 + x), (50 + y), (45 + x), (50 + y), 5);
-      path.lineTo((5 + x), (50 + y));
-      path.arcTo((0 + x), (50 + y), (0 + x), (45 + y), 5);
-      path.lineTo((0 + x), (5 + y));
-      path.arcTo((0 + x), (0 + y), (5 + x), (0 + y), 5);
-      path.lineTo((45 + x), (0 + y));
-      path.moveTo(10 + x, (25 + y));
-      path.lineTo((40 + x), (25 + y));
-      path.moveTo(25 + x, (10 + y));
-      path.lineTo((25 + x), (40 + y));
-      ctx.fill(path);
-      ctx.stroke(path);
-      return path;
-    }
-    function drawZoomOut(on, ctx = ctxCr) {
-      const path = new Path2D();
-      const x = 30
-      const y = 85
-
-      ctx.fillStyle = black;
-      ctx.strokeStyle = (on ? wgray : white);
-      ctx.lineWidth = 2;
-      path.moveTo(45 + x, (0 + y));
-      path.arcTo((50 + x), (0 + y), (50 + x), (5 + y), 5);
-      path.lineTo((50 + x), (45 + y));
-      path.arcTo((50 + x), (50 + y), (45 + x), (50 + y), 5);
-      path.lineTo((5 + x), (50 + y));
-      path.arcTo((0 + x), (50 + y), (0 + x), (45 + y), 5);
-      path.lineTo((0 + x), (5 + y));
-      path.arcTo((0 + x), (0 + y), (5 + x), (0 + y), 5);
-      path.lineTo((45 + x), (0 + y));
-      path.moveTo(10 + x, (25 + y));
-      path.lineTo((40 + x), (25 + y));
-      ctx.fill(path);
-      ctx.stroke(path);
-      return path;
-    }
-    function drawWire( x1, y1, x2, y2, on,ctx = ctxCr) {
-      const dx = Math.abs(x1 - x2)
-      const dy = Math.abs(y1 - y2)
-
-      const points = [
-        [(dx > dy) ? (x1 + x2) / 2 : x1, (dx > dy) ? y1 : (y1 + y2) / 2],
-        [(dx > dy) ? (x1 + x2) / 2 : x2, (dx > dy) ? y2 : (y1 + y2) / 2],
-        [x2, y2],
-      ]
-      ctx.strokeStyle = on ? red : white;
-      ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      points.forEach(([x, y]) => ctx.lineTo(x, y))
-      ctx.stroke();
-      ctx.strokeStyle = black;
-    }
-    function drawButton( x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-      ctx.lineWidth = 2;
-      path.moveTo(x + 30/size, y)
-      path.arcTo(x + 30/size, y + 30/size, x, y + 30/size, 30 / size);
-      path.arcTo(x - 30/size, y + 30/size, x - 30/size, y, 30 / size);
-      path.arcTo(x - 30/size, y - 30/size, x, y - 30/size, 30 / size);
-      path.arcTo(x + 30/size, y - 30/size, x + 30/size, y, 30 / size);
-      ctx.fillStyle = on ? red : black
-      ctx.strokeStyle = white
-      ctx.fill(path);
-      ctx.stroke(path);
-      const line = new Path2D();
-      path.addPath(line)      
-      line.moveTo(x + 30/size, y)
-      line.lineTo(x + 50/size, y)
-      ctx.strokeStyle = white;
-      ctx.stroke(line);
-      return path;
-    }
-    function drawNode( x, y, on, clicked,ctx = ctxCr,size) {
-      const path = new Path2D();
-      path.moveTo(x, y)
-      path.arc(x, y, (clicked ? 10 : 4.5)/size, 0, 2 * Math.PI);
-      ctx.fillStyle = clicked ? "#00FF00" : on ? red : white;
-      ctx.fill(path);
-
-      return path;
-    }
-    function drawOn(x, y,ctx=ctxCr,size) {
-      const path = new Path2D();
-      path.moveTo(x, y)
-      path.lineTo(x-50/size,y)
-      path.arc(x-50/size, y, 20/size, 0, 2 * Math.PI);
-      ctx.fillStyle = red
-      ctx.strokeStyle = red
-      ctx.fill(path);
-      const line = new Path2D();
-      path.addPath(line)      
-      line.moveTo(x, y)
-      line.lineTo(x - 50/size, y)
-      ctx.stroke(line);
-      ctx.strokeStyle = black;
-      return path
-    }
-    function drawOff(x, y,ctx=ctxCr,size) {
-      const path = new Path2D();
-      path.moveTo(x, y)
-      path.lineTo(x-50/size,y)
-      path.arc(x-50/size, y, 20/size, 0, 2 * Math.PI);
-      ctx.fillStyle = black
-      ctx.strokeStyle = black
-      ctx.fill(path);
-      const line = new Path2D();
-      path.addPath(line)      
-      line.moveTo(x, y)
-      line.lineTo(x - 50/size, y)
-      ctx.stroke(line);
-      ctx.strokeStyle = black;
-      return path
-    }
-    function drawOr(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo(100/size + x, 20/size + y);
-      path.arcTo(150/size + x, 20/size + y, 150/size + x, 40/size + y, 20/size);
-      path.arcTo(150/size + x, 60/size + y, 130/size + x, 60/size + y, 20/size);
-      path.lineTo(100/size + x, 60/size + y);
-      path.arcTo(120/size + x, 40/size + y, 100/size + x, 20/size + y, 29/size);
-      ctx.fill(path);
-      path.moveTo(107/size + x, 33/size + y);
-      path.lineTo(70/size + x, 33/size + y);
-      path.moveTo(107/size + x, 47/size + y);
-      path.lineTo(70/size + x, 47/size + y);
-      path.moveTo(187/size + x, 40/size + y);
-      path.lineTo(150/size + x, 40/size + y);
-      ctx.stroke(path);
-
-      return path;
-    }
-
-    function drawNor(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo(100/size + x, 20/size + y);
-      path.arcTo(150/size + x, 20/size + y, 150/size + x, 40/size + y, 20/size);
-      path.arcTo(150/size + x, 60/size + y, 130/size + x, 60/size + y, 20/size);
-      path.lineTo(100/size + x, 60/size + y);
-      path.arcTo(120/size + x, 40/size + y, 100/size + x, 20/size + y, 29/size);
-      ctx.fill(path);
-      path.moveTo(107/size + x, 33/size + y);
-      path.lineTo(70/size + x, 33/size + y);
-      path.moveTo(107/size + x, 47/size + y);
-      path.lineTo(70/size + x, 47/size + y);
-      path.moveTo(187/size + x, 40/size + y);
-      path.lineTo(150/size + x, 40/size + y);
-      ctx.stroke(path);
-      path.moveTo(150/size + x, 40/size + y);
-
-      const dot = new Path2D();
-      path.addPath(dot)
-
-      dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = bgray;
-      ctx.fill(dot);
-      ctx.stroke(dot);
-
-      return path;
-    }
-
-    function drawAnd(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo(100/size + x, (20/size + y));
-      path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
-      path.arcTo((150/size + x), (60/size + y), (130/size + x), (60/size + y), 20/size);
-      path.lineTo((100/size + x), (60/size + y));
-      path.lineTo((100/size + x), (20/size + y));
-      ctx.fill(path);
-      path.moveTo((100/size + x), (33/size + y));
-      path.lineTo((70/size + x), (33/size + y));
-      path.moveTo((100/size + x), (47/size + y));
-      path.lineTo((70/size + x), (47/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-      return path;
-    }
-
-    function drawXor(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo((92/size + x), (20/size + y));
-      path.lineTo((100/size + x), (20/size + y));
-      path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
-      path.arcTo((150/size + x), (60/size + y), (130/size + x), (60/size + y), 20/size);
-      path.lineTo((100/size + x), (60/size + y));
-      path.arcTo((120/size + x), (40/size + y), (100/size + x), (20/size + y), 29/size);
-      ctx.fill(path);
-      path.moveTo((100/size + x), (60/size + y));
-      path.lineTo((92/size + x), (60/size + y));
-      path.moveTo((94/size + x), (58/size + y));
-      path.arcTo((112/size + x), (40/size + y), (94/size + x), (22/size + y), 29/size);
-      path.moveTo((99/size + x), (33/size + y));
-      path.lineTo((70/size + x), (33/size + y));
-      path.moveTo((99/size + x), (47/size + y));
-      path.lineTo((70/size + x), (47/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-
-      return path;
-    }
-
-    function drawNand(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo(100/size + x, (20/size + y));
-      path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
-      path.arcTo((150/size + x), (60/size + y), (130/size + x), (60/size + y), 20/size);
-      path.lineTo((100/size + x), (60/size + y));
-      path.lineTo((100/size + x), (20/size + y));
-      ctx.fill(path);
-      path.moveTo((100/size + x), (33/size + y));
-      path.lineTo((70/size + x), (33/size + y));
-      path.moveTo((100/size + x), (47/size + y));
-      path.lineTo((70/size + x), (47/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-      path.moveTo(150/size + x, 40/size + y);
-
-      const dot = new Path2D();
-      path.addPath(dot)
-
-      dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = bgray;
-      ctx.fill(dot);
-      ctx.stroke(dot);
-
-      return path;
-    }
-
-    function drawXnor(x, y, on,ctx = ctxCr, size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo((92/size + x), (20/size + y));
-      path.lineTo((100/size + x), (20/size + y));
-      path.arcTo((150/size + x), (20/size + y), (150/size + x), (40/size + y), 20/size);
-      path.arcTo((150/size + x), (60/size + y), (130/size + x), (60/size + y), 20/size);
-      path.lineTo((100/size + x), (60/size + y));
-      path.arcTo((120/size + x), (40/size + y), (100/size + x), (20/size + y), 29/size);
-      ctx.fill(path);
-      path.moveTo((100/size + x), (60/size + y));
-      path.lineTo((92/size + x), (60/size + y));
-      path.moveTo((94/size + x), (58/size + y));
-      path.arcTo((112/size + x), (40/size + y), (94/size + x), (22/size + y), 29/size);
-      path.moveTo((99/size + x), (33/size + y));
-      path.lineTo((70/size + x), (33/size + y));
-      path.moveTo((99/size + x), (47/size + y));
-      path.lineTo((70/size + x), (47/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-      path.moveTo(150/size + x, 40/size + y);
-
-      const dot = new Path2D();
-      path.addPath(dot)
-
-      dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = bgray;
-      ctx.fill(dot);
-      ctx.stroke(dot);
-
-      return path;
-    }
-
-    function drawBuff(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo((99/size + x), (20/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      path.lineTo((99/size + x), (60/size + y));
-      path.lineTo((99/size + x), (20/size + y));
-      ctx.fill(path);
-      path.moveTo((99/size + x), (40/size + y));
-      path.lineTo((70/size + x), (40/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-
-      return path;
-    }
-
-    function drawNot(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-
-      ctx.fillStyle = (on ? red : bgray);
-      ctx.strokeStyle = white;
-      ctx.lineWidth = 2;
-      path.moveTo((99/size + x), (20/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      path.lineTo((99/size + x), (60/size + y));
-      path.lineTo((99/size + x), (20/size + y));
-      ctx.fill(path);
-      path.moveTo((99/size + x), (40/size + y));
-      path.lineTo((70/size + x), (40/size + y));
-      path.moveTo((187/size + x), (40/size + y));
-      path.lineTo((150/size + x), (40/size + y));
-      ctx.stroke(path);
-      path.moveTo(150/size + x, 40/size + y);
-
-      const dot = new Path2D();
-      path.addPath(dot)
-
-      dot.arc(150/size + x, 40/size + y, 5/size, 0, 2 * Math.PI);
-      ctx.fillStyle = bgray;
-      ctx.fill(dot);
-      ctx.stroke(dot);
-
-      return path;
-    }
-
-    function drawVertseg(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-      path.moveTo(x, y - 35/size);
-      path.lineTo(x - 6/size, y - 29/size);
-      path.lineTo(x - 6/size, y + 9/size);
-      path.lineTo(x, y + 15/size);
-      path.lineTo(x + 6/size, y + 9/size);
-      path.lineTo(x + 6/size, y - 29/size);
-      ctx.fillStyle = on ? red : black
-      ctx.strokeStyle = on ? red : black
-      ctx.fill(path);
-      const line = new Path2D();
-      path.addPath(line)      
-      line.moveTo(x, y + 10/size)
-      line.lineTo(x, y + 30/size)
-      ctx.stroke(line);
-      ctx.strokeStyle = black;
-      return path;
-    }
-
-    function drawHoriseg(x, y, on,ctx = ctxCr,size) {
-      const path = new Path2D();
-      path.moveTo(x - 35/size, y);
-      path.lineTo(x - 29/size, y - 6/size);
-      path.lineTo(x + 9/size, y - 6/size);
-      path.lineTo(x + 15/size, y);
-      path.lineTo(x + 9/size, y + 6/size);
-      path.lineTo(x - 29/size, y + 6/size);
-      ctx.fillStyle = on ? red : black
-      ctx.strokeStyle = on ? red : black
-      ctx.fill(path);
-      const line = new Path2D();
-      path.addPath(line)      
-      line.moveTo(x + 10/size, y)
-      line.lineTo(x + 30/size, y)
-      ctx.stroke(line);
-      ctx.strokeStyle = black;
-      return path;
-    }
-
-
-
-  </script>
+  <script src="elements-graphic.js"></script>
   <script src="WCS_WebCircruitSimulator.js"></script>
   <script src="Panel.js"></script>
   <script>
     var c1 = new Circruit((cir) => {
-  new Logic(cir, 'not', 250, 80)
-  new Logic(cir, 'and', 600, 0)
-  new Logic(cir, 'and', 600, 40)
-  new Logic(cir, 'and', 600, 80)
-  new Logic(cir, 'and', 600, 120)
-  new Logic(cir, 'and', 820, 20)
-  new Logic(cir, 'and', 820, 60)
-  new Logic(cir, 'and', 820, 140)
-  new Logic(cir, 'and', 820, 180)
-  new Logic(cir, 'and', 820, 100)
-  new Logic(cir, 'and', 820, 220)
-  new Logic(cir, 'and', 820, 260)
-  new Logic(cir, 'and', 820, 300)
-  new Logic(cir, 'and', 820, -20)
-  new Logic(cir, 'and', 820, -60)
-  new Logic(cir, 'and', 820, -100)
-  new Logic(cir, 'and', 820, 340)
-  new Logic(cir, 'and', 820, -140)
-  new Logic(cir, 'and', 820, 380)
-  new Logic(cir, 'and', 820, 420)
-  new Logic(cir, 'and', 820, 460)
-  new Logic(cir, 'buff', 1120, -400)
-  new Logic(cir, 'buff', 1120, -360)
-  new Logic(cir, 'buff', 1120, -320)
-  new Logic(cir, 'buff', 1120, -280)
-  new Logic(cir, 'buff', 1120, -240)
-  new Logic(cir, 'buff', 1120, -200)
-  new Logic(cir, 'buff', 1120, -160)
-  new Logic(cir, 'buff', 1120, -120)
-  new Logic(cir, 'buff', 1120, -80)
-  new Logic(cir, 'buff', 1120, -40)
-  new Logic(cir, 'buff', 1120, 0)
-  new Logic(cir, 'buff', 1120, 40)
-  new Logic(cir, 'buff', 1120, 80)
-  new Logic(cir, 'buff', 1120, 120)
-  new Logic(cir, 'buff', 1120, 160)
-  new Logic(cir, 'buff', 1120, 200)
-  new Logic(cir, 'buff', 1120, 240)
-  new Logic(cir, 'buff', 1120, 280)
-  new Logic(cir, 'buff', 1120, 320)
-  new Logic(cir, 'buff', 1120, 360)
-  new Logic(cir, 'buff', 1120, 400)
-  new Logic(cir, 'buff', 1120, 440)
-  new Logic(cir, 'buff', 1120, 480)
-  new Logic(cir, 'buff', 1120, 520)
-  new Logic(cir, 'buff', 1120, 560)
-  new Logic(cir, 'buff', 1120, 600)
-  new Logic(cir, 'buff', 1120, 640)
-  new Logic(cir, 'buff', 1120, 680)
-  new Logic(cir, 'buff', 1120, 720)
-  new Logic(cir, 'buff', 1120, 760)
-  new Logic(cir, 'buff', 1120, 800)
-  new Logic(cir, 'buff', 1120, 840)
-  new Logic(cir, 'buff', 1120, 880)
-  new Logic(cir, 'buff', 1120, 920)
-  new Logic(cir, 'buff', 1120, 960)
-  new Logic(cir, 'buff', 1120, 1000)
-  new Logic(cir, 'buff', 1120, 1040)
-  new Logic(cir, 'buff', 1120, 1080)
-  new Logic(cir, 'buff', 1120, 1120)
-  new Logic(cir, 'buff', 1120, 1160)
-  new Logic(cir, 'buff', 1120, 1200)
-  new Logic(cir, 'buff', 1120, 1240)
-  new Logic(cir, 'buff', 1120, 1280)
-  new Logic(cir, 'buff', 1120, 1320)
-  new Logic(cir, 'buff', 1120, 1360)
-  new Logic(cir, 'buff', 1120, 1400)
-  new Logic(cir, 'buff', 1120, 1440)
-  new Logic(cir, 'buff', 1120, 1480)
-  new Logic(cir, 'buff', 1120, 1520)
-  new Logic(cir, 'buff', 1480, -40)
-  new Logic(cir, 'buff', 1480, 0)
-  new Logic(cir, 'buff', 1480, 40)
-  new Logic(cir, 'buff', 1480, 80)
-  new Logic(cir, 'buff', 1480, 120)
-  new Logic(cir, 'buff', 1480, 160)
-  new Logic(cir, 'buff', 1300, -140)
-  new Logic(cir, 'buff', 1300, -100)
-  new Logic(cir, 'buff', 1300, -60)
-  new Logic(cir, 'buff', 1300, -20)
-  new Logic(cir, 'buff', 1300, 20)
-  new Logic(cir, 'buff', 1300, 60)
-  new Logic(cir, 'buff', 1300, 100)
-  new Logic(cir, 'buff', 1300, 140)
-  new Logic(cir, 'buff', 1300, 180)
-  new Logic(cir, 'buff', 1300, 220)
-  new Logic(cir, 'buff', 1300, 260)
-  new Logic(cir, 'buff', 1300, 300)
-  new Logic(cir, 'buff', 1300, 340)
-  new Logic(cir, 'buff', 1300, 380)
-  new Logic(cir, 'buff', 1300, 420)
-  new Logic(cir, 'buff', 1300, 460)
-  new Logic(cir, 'buff', 1300, 500)
-  new Logic(cir, 'buff', 1300, 540)
-  new Logic(cir, 'buff', 1300, 580)
-  new Logic(cir, 'buff', 1300, 620)
-  new Logic(cir, 'buff', 1300, 660)
-  new Logic(cir, 'buff', 1300, 700)
-  new Logic(cir, 'buff', 1300, 740)
-  new Logic(cir, 'buff', 1300, 780)
-  new Logic(cir, 'buff', 1300, 820)
-  new Logic(cir, 'buff', 1300, 860)
-  new Logic(cir, 'buff', 1300, 900)
-  new Logic(cir, 'buff', 1300, 940)
-  new Logic(cir, 'buff', 1300, 980)
-  new Logic(cir, 'horiseg', 1835, -70)
-  new Logic(cir, 'buff', 1480, -80)
-  new Logic(cir, 'vertseg', 1800, -32)
-  new Logic(cir, 'horiseg', 1835, 40)
-  new Logic(cir, 'horiseg', 1835, -15)
-  new Logic(cir, 'vertseg', 1853, -32)
-  new Logic(cir, 'and', 600, 160)
-  new Logic(cir, 'and', 600, 200)
-  new Logic(cir, 'and', 600, 240)
-  new Logic(cir, 'and', 600, 280)
-  new Logic(cir, 'vertseg', 1853, 23)
-  new Logic(cir, 'vertseg', 1800, 23)
-  new Logic(cir, 'button', 200, 60)
-  new Logic(cir, 'button', 200, 120)
-  new Logic(cir, 'not', 250, 40)
-  new Logic(cir, 'not', 250, 120)
-  new Logic(cir, 'not', 250, 160)
-  new Logic(cir, 'button', 200, 240)
-  new Logic(cir, 'button', 200, 180)
-  new Connection(cir, objs2.get(Node)[0], objs2.get(Node)[252])
-  new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[3])
-  new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[6])
-  new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[254])
-  new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[14])
-  new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[23])
-  new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[47])
-  new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[50])
-  new Connection(cir, objs2.get(Node)[5], objs2.get(Node)[251])
-  new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[17])
-  new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[29])
-  new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[44])
-  new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[53])
-  new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[254])
-  new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[252])
-  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[26])
-  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[32])
-  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[41])
-  new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[56])
-  new Connection(cir, objs2.get(Node)[11], objs2.get(Node)[251])
-  new Connection(cir, objs2.get(Node)[12], objs2.get(Node)[252])
-  new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[20])
-  new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[35])
-  new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[38])
-  new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[59])
-  new Connection(cir, objs2.get(Node)[15], objs2.get(Node)[242])
-  new Connection(cir, objs2.get(Node)[16], objs2.get(Node)[98])
-  new Connection(cir, objs2.get(Node)[18], objs2.get(Node)[242])
-  new Connection(cir, objs2.get(Node)[19], objs2.get(Node)[106])
-  new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[242])
-  new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[128])
-  new Connection(cir, objs2.get(Node)[24], objs2.get(Node)[245])
-  new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[134])
-  new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[242])
-  new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[116])
-  new Connection(cir, objs2.get(Node)[30], objs2.get(Node)[245])
-  new Connection(cir, objs2.get(Node)[31], objs2.get(Node)[148])
-  new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[245])
-  new Connection(cir, objs2.get(Node)[34], objs2.get(Node)[172])
-  new Connection(cir, objs2.get(Node)[36], objs2.get(Node)[245])
-  new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[184])
-  new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[239])
-  new Connection(cir, objs2.get(Node)[40], objs2.get(Node)[88])
-  new Connection(cir, objs2.get(Node)[42], objs2.get(Node)[239])
-  new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[78])
-  new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[239])
-  new Connection(cir, objs2.get(Node)[46], objs2.get(Node)[74])
-  new Connection(cir, objs2.get(Node)[48], objs2.get(Node)[248])
-  new Connection(cir, objs2.get(Node)[49], objs2.get(Node)[194])
-  new Connection(cir, objs2.get(Node)[51], objs2.get(Node)[239])
-  new Connection(cir, objs2.get(Node)[52], objs2.get(Node)[62])
-  new Connection(cir, objs2.get(Node)[54], objs2.get(Node)[248])
-  new Connection(cir, objs2.get(Node)[55], objs2.get(Node)[202])
-  new Connection(cir, objs2.get(Node)[57], objs2.get(Node)[248])
-  new Connection(cir, objs2.get(Node)[58], objs2.get(Node)[212])
-  new Connection(cir, objs2.get(Node)[60], objs2.get(Node)[248])
-  new Connection(cir, objs2.get(Node)[61], objs2.get(Node)[222])
-  new Connection(cir, objs2.get(Node)[62], objs2.get(Node)[64])
-  new Connection(cir, objs2.get(Node)[63], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[64], objs2.get(Node)[66])
-  new Connection(cir, objs2.get(Node)[65], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[66], objs2.get(Node)[68])
-  new Connection(cir, objs2.get(Node)[67], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[68], objs2.get(Node)[70])
-  new Connection(cir, objs2.get(Node)[69], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[70], objs2.get(Node)[72])
-  new Connection(cir, objs2.get(Node)[71], objs2.get(Node)[166])
-  new Connection(cir, objs2.get(Node)[73], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[74], objs2.get(Node)[76])
-  new Connection(cir, objs2.get(Node)[75], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[77], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[78], objs2.get(Node)[80])
-  new Connection(cir, objs2.get(Node)[79], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[80], objs2.get(Node)[82])
-  new Connection(cir, objs2.get(Node)[81], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[82], objs2.get(Node)[84])
-  new Connection(cir, objs2.get(Node)[83], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[84], objs2.get(Node)[86])
-  new Connection(cir, objs2.get(Node)[85], objs2.get(Node)[166])
-  new Connection(cir, objs2.get(Node)[87], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[88], objs2.get(Node)[90])
-  new Connection(cir, objs2.get(Node)[89], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[90], objs2.get(Node)[92])
-  new Connection(cir, objs2.get(Node)[91], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[92], objs2.get(Node)[94])
-  new Connection(cir, objs2.get(Node)[93], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[94], objs2.get(Node)[96])
-  new Connection(cir, objs2.get(Node)[95], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[97], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[98], objs2.get(Node)[100])
-  new Connection(cir, objs2.get(Node)[99], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[100], objs2.get(Node)[102])
-  new Connection(cir, objs2.get(Node)[101], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[102], objs2.get(Node)[104])
-  new Connection(cir, objs2.get(Node)[103], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[105], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[106], objs2.get(Node)[108])
-  new Connection(cir, objs2.get(Node)[107], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[108], objs2.get(Node)[110])
-  new Connection(cir, objs2.get(Node)[109], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[110], objs2.get(Node)[112])
-  new Connection(cir, objs2.get(Node)[111], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[112], objs2.get(Node)[114])
-  new Connection(cir, objs2.get(Node)[113], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[115], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[116], objs2.get(Node)[118])
-  new Connection(cir, objs2.get(Node)[117], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[118], objs2.get(Node)[120])
-  new Connection(cir, objs2.get(Node)[119], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[120], objs2.get(Node)[122])
-  new Connection(cir, objs2.get(Node)[121], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[122], objs2.get(Node)[124])
-  new Connection(cir, objs2.get(Node)[123], objs2.get(Node)[166])
-  new Connection(cir, objs2.get(Node)[124], objs2.get(Node)[126])
-  new Connection(cir, objs2.get(Node)[125], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[127], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[128], objs2.get(Node)[130])
-  new Connection(cir, objs2.get(Node)[129], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[130], objs2.get(Node)[132])
-  new Connection(cir, objs2.get(Node)[131], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[133], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[134], objs2.get(Node)[136])
-  new Connection(cir, objs2.get(Node)[135], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[136], objs2.get(Node)[138])
-  new Connection(cir, objs2.get(Node)[137], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[138], objs2.get(Node)[140])
-  new Connection(cir, objs2.get(Node)[139], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[140], objs2.get(Node)[142])
-  new Connection(cir, objs2.get(Node)[141], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[142], objs2.get(Node)[144])
-  new Connection(cir, objs2.get(Node)[143], objs2.get(Node)[166])
-  new Connection(cir, objs2.get(Node)[144], objs2.get(Node)[146])
-  new Connection(cir, objs2.get(Node)[145], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[147], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[148], objs2.get(Node)[150])
-  new Connection(cir, objs2.get(Node)[149], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[150], objs2.get(Node)[152])
-  new Connection(cir, objs2.get(Node)[151], objs2.get(Node)[160])
-  new Connection(cir, objs2.get(Node)[152], objs2.get(Node)[154])
-  new Connection(cir, objs2.get(Node)[153], objs2.get(Node)[162])
-  new Connection(cir, objs2.get(Node)[154], objs2.get(Node)[156])
-  new Connection(cir, objs2.get(Node)[155], objs2.get(Node)[164])
-  new Connection(cir, objs2.get(Node)[156], objs2.get(Node)[158])
-  new Connection(cir, objs2.get(Node)[157], objs2.get(Node)[168])
-  new Connection(cir, objs2.get(Node)[159], objs2.get(Node)[170])
-  new Connection(cir, objs2.get(Node)[160], objs2.get(Node)[175])
-  new Connection(cir, objs2.get(Node)[160], objs2.get(Node)[203])
-  new Connection(cir, objs2.get(Node)[161], objs2.get(Node)[236])
-  new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[177])
-  new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[185])
-  new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[205])
-  new Connection(cir, objs2.get(Node)[163], objs2.get(Node)[249])
-  new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[187])
-  new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[197])
-  new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[207])
-  new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[215])
-  new Connection(cir, objs2.get(Node)[165], objs2.get(Node)[234])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[179])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[189])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[199])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[209])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[217])
-  new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[225])
-  new Connection(cir, objs2.get(Node)[167], objs2.get(Node)[250])
-  new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[181])
-  new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[191])
-  new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[201])
-  new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[219])
-  new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[227])
-  new Connection(cir, objs2.get(Node)[169], objs2.get(Node)[233])
-  new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[183])
-  new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[193])
-  new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[211])
-  new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[221])
-  new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[229])
-  new Connection(cir, objs2.get(Node)[171], objs2.get(Node)[235])
-  new Connection(cir, objs2.get(Node)[172], objs2.get(Node)[174])
-  new Connection(cir, objs2.get(Node)[173], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[174], objs2.get(Node)[176])
-  new Connection(cir, objs2.get(Node)[176], objs2.get(Node)[178])
-  new Connection(cir, objs2.get(Node)[178], objs2.get(Node)[180])
-  new Connection(cir, objs2.get(Node)[180], objs2.get(Node)[182])
-  new Connection(cir, objs2.get(Node)[184], objs2.get(Node)[186])
-  new Connection(cir, objs2.get(Node)[186], objs2.get(Node)[188])
-  new Connection(cir, objs2.get(Node)[188], objs2.get(Node)[190])
-  new Connection(cir, objs2.get(Node)[190], objs2.get(Node)[192])
-  new Connection(cir, objs2.get(Node)[194], objs2.get(Node)[196])
-  new Connection(cir, objs2.get(Node)[195], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[196], objs2.get(Node)[198])
-  new Connection(cir, objs2.get(Node)[198], objs2.get(Node)[200])
-  new Connection(cir, objs2.get(Node)[202], objs2.get(Node)[204])
-  new Connection(cir, objs2.get(Node)[204], objs2.get(Node)[206])
-  new Connection(cir, objs2.get(Node)[206], objs2.get(Node)[208])
-  new Connection(cir, objs2.get(Node)[208], objs2.get(Node)[210])
-  new Connection(cir, objs2.get(Node)[212], objs2.get(Node)[214])
-  new Connection(cir, objs2.get(Node)[213], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[214], objs2.get(Node)[216])
-  new Connection(cir, objs2.get(Node)[216], objs2.get(Node)[218])
-  new Connection(cir, objs2.get(Node)[218], objs2.get(Node)[220])
-  new Connection(cir, objs2.get(Node)[222], objs2.get(Node)[224])
-  new Connection(cir, objs2.get(Node)[223], objs2.get(Node)[231])
-  new Connection(cir, objs2.get(Node)[224], objs2.get(Node)[226])
-  new Connection(cir, objs2.get(Node)[226], objs2.get(Node)[228])
-  new Connection(cir, objs2.get(Node)[230], objs2.get(Node)[232])
-  new Connection(cir, objs2.get(Node)[237], objs2.get(Node)[256])
-  new Connection(cir, objs2.get(Node)[238], objs2.get(Node)[258])
-  new Connection(cir, objs2.get(Node)[240], objs2.get(Node)[260])
-  new Connection(cir, objs2.get(Node)[241], objs2.get(Node)[258])
-  new Connection(cir, objs2.get(Node)[243], objs2.get(Node)[256])
-  new Connection(cir, objs2.get(Node)[244], objs2.get(Node)[259])
-  new Connection(cir, objs2.get(Node)[246], objs2.get(Node)[260])
-  new Connection(cir, objs2.get(Node)[247], objs2.get(Node)[259])
-  new Connection(cir, objs2.get(Node)[251], objs2.get(Node)[253])
-  new Connection(cir, objs2.get(Node)[255], objs2.get(Node)[260])
-  new Connection(cir, objs2.get(Node)[257], objs2.get(Node)[259])
+      new Logic(cir, 'not', 250, 80)
+      new Logic(cir, 'and', 600, 0)
+      new Logic(cir, 'and', 600, 40)
+      new Logic(cir, 'and', 600, 80)
+      new Logic(cir, 'and', 600, 120)
+      new Logic(cir, 'and', 820, 20)
+      new Logic(cir, 'and', 820, 60)
+      new Logic(cir, 'and', 820, 140)
+      new Logic(cir, 'and', 820, 180)
+      new Logic(cir, 'and', 820, 100)
+      new Logic(cir, 'and', 820, 220)
+      new Logic(cir, 'and', 820, 260)
+      new Logic(cir, 'and', 820, 300)
+      new Logic(cir, 'and', 820, -20)
+      new Logic(cir, 'and', 820, -60)
+      new Logic(cir, 'and', 820, -100)
+      new Logic(cir, 'and', 820, 340)
+      new Logic(cir, 'and', 820, -140)
+      new Logic(cir, 'and', 820, 380)
+      new Logic(cir, 'and', 820, 420)
+      new Logic(cir, 'and', 820, 460)
+      new Logic(cir, 'buff', 1120, -400)
+      new Logic(cir, 'buff', 1120, -360)
+      new Logic(cir, 'buff', 1120, -320)
+      new Logic(cir, 'buff', 1120, -280)
+      new Logic(cir, 'buff', 1120, -240)
+      new Logic(cir, 'buff', 1120, -200)
+      new Logic(cir, 'buff', 1120, -160)
+      new Logic(cir, 'buff', 1120, -120)
+      new Logic(cir, 'buff', 1120, -80)
+      new Logic(cir, 'buff', 1120, -40)
+      new Logic(cir, 'buff', 1120, 0)
+      new Logic(cir, 'buff', 1120, 40)
+      new Logic(cir, 'buff', 1120, 80)
+      new Logic(cir, 'buff', 1120, 120)
+      new Logic(cir, 'buff', 1120, 160)
+      new Logic(cir, 'buff', 1120, 200)
+      new Logic(cir, 'buff', 1120, 240)
+      new Logic(cir, 'buff', 1120, 280)
+      new Logic(cir, 'buff', 1120, 320)
+      new Logic(cir, 'buff', 1120, 360)
+      new Logic(cir, 'buff', 1120, 400)
+      new Logic(cir, 'buff', 1120, 440)
+      new Logic(cir, 'buff', 1120, 480)
+      new Logic(cir, 'buff', 1120, 520)
+      new Logic(cir, 'buff', 1120, 560)
+      new Logic(cir, 'buff', 1120, 600)
+      new Logic(cir, 'buff', 1120, 640)
+      new Logic(cir, 'buff', 1120, 680)
+      new Logic(cir, 'buff', 1120, 720)
+      new Logic(cir, 'buff', 1120, 760)
+      new Logic(cir, 'buff', 1120, 800)
+      new Logic(cir, 'buff', 1120, 840)
+      new Logic(cir, 'buff', 1120, 880)
+      new Logic(cir, 'buff', 1120, 920)
+      new Logic(cir, 'buff', 1120, 960)
+      new Logic(cir, 'buff', 1120, 1000)
+      new Logic(cir, 'buff', 1120, 1040)
+      new Logic(cir, 'buff', 1120, 1080)
+      new Logic(cir, 'buff', 1120, 1120)
+      new Logic(cir, 'buff', 1120, 1160)
+      new Logic(cir, 'buff', 1120, 1200)
+      new Logic(cir, 'buff', 1120, 1240)
+      new Logic(cir, 'buff', 1120, 1280)
+      new Logic(cir, 'buff', 1120, 1320)
+      new Logic(cir, 'buff', 1120, 1360)
+      new Logic(cir, 'buff', 1120, 1400)
+      new Logic(cir, 'buff', 1120, 1440)
+      new Logic(cir, 'buff', 1120, 1480)
+      new Logic(cir, 'buff', 1120, 1520)
+      new Logic(cir, 'buff', 1480, -40)
+      new Logic(cir, 'buff', 1480, 0)
+      new Logic(cir, 'buff', 1480, 40)
+      new Logic(cir, 'buff', 1480, 80)
+      new Logic(cir, 'buff', 1480, 120)
+      new Logic(cir, 'buff', 1480, 160)
+      new Logic(cir, 'buff', 1300, -140)
+      new Logic(cir, 'buff', 1300, -100)
+      new Logic(cir, 'buff', 1300, -60)
+      new Logic(cir, 'buff', 1300, -20)
+      new Logic(cir, 'buff', 1300, 20)
+      new Logic(cir, 'buff', 1300, 60)
+      new Logic(cir, 'buff', 1300, 100)
+      new Logic(cir, 'buff', 1300, 140)
+      new Logic(cir, 'buff', 1300, 180)
+      new Logic(cir, 'buff', 1300, 220)
+      new Logic(cir, 'buff', 1300, 260)
+      new Logic(cir, 'buff', 1300, 300)
+      new Logic(cir, 'buff', 1300, 340)
+      new Logic(cir, 'buff', 1300, 380)
+      new Logic(cir, 'buff', 1300, 420)
+      new Logic(cir, 'buff', 1300, 460)
+      new Logic(cir, 'buff', 1300, 500)
+      new Logic(cir, 'buff', 1300, 540)
+      new Logic(cir, 'buff', 1300, 580)
+      new Logic(cir, 'buff', 1300, 620)
+      new Logic(cir, 'buff', 1300, 660)
+      new Logic(cir, 'buff', 1300, 700)
+      new Logic(cir, 'buff', 1300, 740)
+      new Logic(cir, 'buff', 1300, 780)
+      new Logic(cir, 'buff', 1300, 820)
+      new Logic(cir, 'buff', 1300, 860)
+      new Logic(cir, 'buff', 1300, 900)
+      new Logic(cir, 'buff', 1300, 940)
+      new Logic(cir, 'buff', 1300, 980)
+      new Logic(cir, 'horiseg', 1835, -70)
+      new Logic(cir, 'buff', 1480, -80)
+      new Logic(cir, 'vertseg', 1800, -32)
+      new Logic(cir, 'horiseg', 1835, 40)
+      new Logic(cir, 'horiseg', 1835, -15)
+      new Logic(cir, 'vertseg', 1853, -32)
+      new Logic(cir, 'and', 600, 160)
+      new Logic(cir, 'and', 600, 200)
+      new Logic(cir, 'and', 600, 240)
+      new Logic(cir, 'and', 600, 280)
+      new Logic(cir, 'vertseg', 1853, 23)
+      new Logic(cir, 'vertseg', 1800, 23)
+      new Logic(cir, 'button', 200, 60)
+      new Logic(cir, 'button', 200, 120)
+      new Logic(cir, 'not', 250, 40)
+      new Logic(cir, 'not', 250, 120)
+      new Logic(cir, 'not', 250, 160)
+      new Logic(cir, 'button', 200, 240)
+      new Logic(cir, 'button', 200, 180)
+      new Connection(cir, objs2.get(Node)[0], objs2.get(Node)[252])
+      new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[3])
+      new Connection(cir, objs2.get(Node)[1], objs2.get(Node)[6])
+      new Connection(cir, objs2.get(Node)[2], objs2.get(Node)[254])
+      new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[14])
+      new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[23])
+      new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[47])
+      new Connection(cir, objs2.get(Node)[4], objs2.get(Node)[50])
+      new Connection(cir, objs2.get(Node)[5], objs2.get(Node)[251])
+      new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[17])
+      new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[29])
+      new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[44])
+      new Connection(cir, objs2.get(Node)[7], objs2.get(Node)[53])
+      new Connection(cir, objs2.get(Node)[8], objs2.get(Node)[254])
+      new Connection(cir, objs2.get(Node)[9], objs2.get(Node)[252])
+      new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[26])
+      new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[32])
+      new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[41])
+      new Connection(cir, objs2.get(Node)[10], objs2.get(Node)[56])
+      new Connection(cir, objs2.get(Node)[11], objs2.get(Node)[251])
+      new Connection(cir, objs2.get(Node)[12], objs2.get(Node)[252])
+      new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[20])
+      new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[35])
+      new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[38])
+      new Connection(cir, objs2.get(Node)[13], objs2.get(Node)[59])
+      new Connection(cir, objs2.get(Node)[15], objs2.get(Node)[242])
+      new Connection(cir, objs2.get(Node)[16], objs2.get(Node)[98])
+      new Connection(cir, objs2.get(Node)[18], objs2.get(Node)[242])
+      new Connection(cir, objs2.get(Node)[19], objs2.get(Node)[106])
+      new Connection(cir, objs2.get(Node)[21], objs2.get(Node)[242])
+      new Connection(cir, objs2.get(Node)[22], objs2.get(Node)[128])
+      new Connection(cir, objs2.get(Node)[24], objs2.get(Node)[245])
+      new Connection(cir, objs2.get(Node)[25], objs2.get(Node)[134])
+      new Connection(cir, objs2.get(Node)[27], objs2.get(Node)[242])
+      new Connection(cir, objs2.get(Node)[28], objs2.get(Node)[116])
+      new Connection(cir, objs2.get(Node)[30], objs2.get(Node)[245])
+      new Connection(cir, objs2.get(Node)[31], objs2.get(Node)[148])
+      new Connection(cir, objs2.get(Node)[33], objs2.get(Node)[245])
+      new Connection(cir, objs2.get(Node)[34], objs2.get(Node)[172])
+      new Connection(cir, objs2.get(Node)[36], objs2.get(Node)[245])
+      new Connection(cir, objs2.get(Node)[37], objs2.get(Node)[184])
+      new Connection(cir, objs2.get(Node)[39], objs2.get(Node)[239])
+      new Connection(cir, objs2.get(Node)[40], objs2.get(Node)[88])
+      new Connection(cir, objs2.get(Node)[42], objs2.get(Node)[239])
+      new Connection(cir, objs2.get(Node)[43], objs2.get(Node)[78])
+      new Connection(cir, objs2.get(Node)[45], objs2.get(Node)[239])
+      new Connection(cir, objs2.get(Node)[46], objs2.get(Node)[74])
+      new Connection(cir, objs2.get(Node)[48], objs2.get(Node)[248])
+      new Connection(cir, objs2.get(Node)[49], objs2.get(Node)[194])
+      new Connection(cir, objs2.get(Node)[51], objs2.get(Node)[239])
+      new Connection(cir, objs2.get(Node)[52], objs2.get(Node)[62])
+      new Connection(cir, objs2.get(Node)[54], objs2.get(Node)[248])
+      new Connection(cir, objs2.get(Node)[55], objs2.get(Node)[202])
+      new Connection(cir, objs2.get(Node)[57], objs2.get(Node)[248])
+      new Connection(cir, objs2.get(Node)[58], objs2.get(Node)[212])
+      new Connection(cir, objs2.get(Node)[60], objs2.get(Node)[248])
+      new Connection(cir, objs2.get(Node)[61], objs2.get(Node)[222])
+      new Connection(cir, objs2.get(Node)[62], objs2.get(Node)[64])
+      new Connection(cir, objs2.get(Node)[63], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[64], objs2.get(Node)[66])
+      new Connection(cir, objs2.get(Node)[65], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[66], objs2.get(Node)[68])
+      new Connection(cir, objs2.get(Node)[67], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[68], objs2.get(Node)[70])
+      new Connection(cir, objs2.get(Node)[69], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[70], objs2.get(Node)[72])
+      new Connection(cir, objs2.get(Node)[71], objs2.get(Node)[166])
+      new Connection(cir, objs2.get(Node)[73], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[74], objs2.get(Node)[76])
+      new Connection(cir, objs2.get(Node)[75], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[77], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[78], objs2.get(Node)[80])
+      new Connection(cir, objs2.get(Node)[79], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[80], objs2.get(Node)[82])
+      new Connection(cir, objs2.get(Node)[81], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[82], objs2.get(Node)[84])
+      new Connection(cir, objs2.get(Node)[83], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[84], objs2.get(Node)[86])
+      new Connection(cir, objs2.get(Node)[85], objs2.get(Node)[166])
+      new Connection(cir, objs2.get(Node)[87], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[88], objs2.get(Node)[90])
+      new Connection(cir, objs2.get(Node)[89], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[90], objs2.get(Node)[92])
+      new Connection(cir, objs2.get(Node)[91], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[92], objs2.get(Node)[94])
+      new Connection(cir, objs2.get(Node)[93], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[94], objs2.get(Node)[96])
+      new Connection(cir, objs2.get(Node)[95], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[97], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[98], objs2.get(Node)[100])
+      new Connection(cir, objs2.get(Node)[99], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[100], objs2.get(Node)[102])
+      new Connection(cir, objs2.get(Node)[101], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[102], objs2.get(Node)[104])
+      new Connection(cir, objs2.get(Node)[103], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[105], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[106], objs2.get(Node)[108])
+      new Connection(cir, objs2.get(Node)[107], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[108], objs2.get(Node)[110])
+      new Connection(cir, objs2.get(Node)[109], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[110], objs2.get(Node)[112])
+      new Connection(cir, objs2.get(Node)[111], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[112], objs2.get(Node)[114])
+      new Connection(cir, objs2.get(Node)[113], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[115], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[116], objs2.get(Node)[118])
+      new Connection(cir, objs2.get(Node)[117], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[118], objs2.get(Node)[120])
+      new Connection(cir, objs2.get(Node)[119], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[120], objs2.get(Node)[122])
+      new Connection(cir, objs2.get(Node)[121], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[122], objs2.get(Node)[124])
+      new Connection(cir, objs2.get(Node)[123], objs2.get(Node)[166])
+      new Connection(cir, objs2.get(Node)[124], objs2.get(Node)[126])
+      new Connection(cir, objs2.get(Node)[125], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[127], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[128], objs2.get(Node)[130])
+      new Connection(cir, objs2.get(Node)[129], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[130], objs2.get(Node)[132])
+      new Connection(cir, objs2.get(Node)[131], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[133], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[134], objs2.get(Node)[136])
+      new Connection(cir, objs2.get(Node)[135], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[136], objs2.get(Node)[138])
+      new Connection(cir, objs2.get(Node)[137], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[138], objs2.get(Node)[140])
+      new Connection(cir, objs2.get(Node)[139], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[140], objs2.get(Node)[142])
+      new Connection(cir, objs2.get(Node)[141], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[142], objs2.get(Node)[144])
+      new Connection(cir, objs2.get(Node)[143], objs2.get(Node)[166])
+      new Connection(cir, objs2.get(Node)[144], objs2.get(Node)[146])
+      new Connection(cir, objs2.get(Node)[145], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[147], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[148], objs2.get(Node)[150])
+      new Connection(cir, objs2.get(Node)[149], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[150], objs2.get(Node)[152])
+      new Connection(cir, objs2.get(Node)[151], objs2.get(Node)[160])
+      new Connection(cir, objs2.get(Node)[152], objs2.get(Node)[154])
+      new Connection(cir, objs2.get(Node)[153], objs2.get(Node)[162])
+      new Connection(cir, objs2.get(Node)[154], objs2.get(Node)[156])
+      new Connection(cir, objs2.get(Node)[155], objs2.get(Node)[164])
+      new Connection(cir, objs2.get(Node)[156], objs2.get(Node)[158])
+      new Connection(cir, objs2.get(Node)[157], objs2.get(Node)[168])
+      new Connection(cir, objs2.get(Node)[159], objs2.get(Node)[170])
+      new Connection(cir, objs2.get(Node)[160], objs2.get(Node)[175])
+      new Connection(cir, objs2.get(Node)[160], objs2.get(Node)[203])
+      new Connection(cir, objs2.get(Node)[161], objs2.get(Node)[236])
+      new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[177])
+      new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[185])
+      new Connection(cir, objs2.get(Node)[162], objs2.get(Node)[205])
+      new Connection(cir, objs2.get(Node)[163], objs2.get(Node)[249])
+      new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[187])
+      new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[197])
+      new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[207])
+      new Connection(cir, objs2.get(Node)[164], objs2.get(Node)[215])
+      new Connection(cir, objs2.get(Node)[165], objs2.get(Node)[234])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[179])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[189])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[199])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[209])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[217])
+      new Connection(cir, objs2.get(Node)[166], objs2.get(Node)[225])
+      new Connection(cir, objs2.get(Node)[167], objs2.get(Node)[250])
+      new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[181])
+      new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[191])
+      new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[201])
+      new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[219])
+      new Connection(cir, objs2.get(Node)[168], objs2.get(Node)[227])
+      new Connection(cir, objs2.get(Node)[169], objs2.get(Node)[233])
+      new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[183])
+      new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[193])
+      new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[211])
+      new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[221])
+      new Connection(cir, objs2.get(Node)[170], objs2.get(Node)[229])
+      new Connection(cir, objs2.get(Node)[171], objs2.get(Node)[235])
+      new Connection(cir, objs2.get(Node)[172], objs2.get(Node)[174])
+      new Connection(cir, objs2.get(Node)[173], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[174], objs2.get(Node)[176])
+      new Connection(cir, objs2.get(Node)[176], objs2.get(Node)[178])
+      new Connection(cir, objs2.get(Node)[178], objs2.get(Node)[180])
+      new Connection(cir, objs2.get(Node)[180], objs2.get(Node)[182])
+      new Connection(cir, objs2.get(Node)[184], objs2.get(Node)[186])
+      new Connection(cir, objs2.get(Node)[186], objs2.get(Node)[188])
+      new Connection(cir, objs2.get(Node)[188], objs2.get(Node)[190])
+      new Connection(cir, objs2.get(Node)[190], objs2.get(Node)[192])
+      new Connection(cir, objs2.get(Node)[194], objs2.get(Node)[196])
+      new Connection(cir, objs2.get(Node)[195], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[196], objs2.get(Node)[198])
+      new Connection(cir, objs2.get(Node)[198], objs2.get(Node)[200])
+      new Connection(cir, objs2.get(Node)[202], objs2.get(Node)[204])
+      new Connection(cir, objs2.get(Node)[204], objs2.get(Node)[206])
+      new Connection(cir, objs2.get(Node)[206], objs2.get(Node)[208])
+      new Connection(cir, objs2.get(Node)[208], objs2.get(Node)[210])
+      new Connection(cir, objs2.get(Node)[212], objs2.get(Node)[214])
+      new Connection(cir, objs2.get(Node)[213], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[214], objs2.get(Node)[216])
+      new Connection(cir, objs2.get(Node)[216], objs2.get(Node)[218])
+      new Connection(cir, objs2.get(Node)[218], objs2.get(Node)[220])
+      new Connection(cir, objs2.get(Node)[222], objs2.get(Node)[224])
+      new Connection(cir, objs2.get(Node)[223], objs2.get(Node)[231])
+      new Connection(cir, objs2.get(Node)[224], objs2.get(Node)[226])
+      new Connection(cir, objs2.get(Node)[226], objs2.get(Node)[228])
+      new Connection(cir, objs2.get(Node)[230], objs2.get(Node)[232])
+      new Connection(cir, objs2.get(Node)[237], objs2.get(Node)[256])
+      new Connection(cir, objs2.get(Node)[238], objs2.get(Node)[258])
+      new Connection(cir, objs2.get(Node)[240], objs2.get(Node)[260])
+      new Connection(cir, objs2.get(Node)[241], objs2.get(Node)[258])
+      new Connection(cir, objs2.get(Node)[243], objs2.get(Node)[256])
+      new Connection(cir, objs2.get(Node)[244], objs2.get(Node)[259])
+      new Connection(cir, objs2.get(Node)[246], objs2.get(Node)[260])
+      new Connection(cir, objs2.get(Node)[247], objs2.get(Node)[259])
+      new Connection(cir, objs2.get(Node)[251], objs2.get(Node)[253])
+      new Connection(cir, objs2.get(Node)[255], objs2.get(Node)[260])
+      new Connection(cir, objs2.get(Node)[257], objs2.get(Node)[259])
 });
     var c2 = new Circruit((cir) => {
       new Logic(cir, 'not', 0, 0)
