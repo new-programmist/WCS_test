@@ -1,12 +1,7 @@
 <!DOCTYPE html>
 <html>
 
-<body style="margin: 0; overflow: none;">
-
-  <canvas id="Circuit" style="margin: 0;background: #555555;">
-    Your browser does not support the HTML5 canvas tag.</canvas>
-  <canvas id="Panel" style="border: 5px solid black;background: #555555;">
-    Your browser does not support the HTML5 canvas tag.</canvas>
+<body style="margin: 0; overflow: none; background: #000000;"><canvas id="Circuit" style="margin: 0; border: 5px solid black; background: #555555;">Your browser does not support the HTML5 canvas tag.</canvas><canvas id="Panel" style="margin: 0; border: 5px solid black; background: #555555;">Your browser does not support the HTML5 canvas tag.</canvas>
   
   <script src="elements-graphic.js"></script>
   <script src="WCS_WebCircruitSimulator.js"></script>
@@ -367,6 +362,7 @@
       new Logic(cir, 'off', 800, 120)
       new Logic(cir, 'horiseg', 900, 60)
       new Logic(cir, 'vertseg', 900, 120)
+      new Logic(cir, 'halfadder', 1100, 100)
     }, true);
     function touchstart(event) { mousedown(event.touches[0]); event.preventDefault(); }
     function touchmove(event) { mousemove(event.touches[0]); event.preventDefault(); }

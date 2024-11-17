@@ -32,6 +32,7 @@ function drawZoomIn(on, ctx = ctxCr) {
     ctx.stroke(path);
     return path;
 }
+
 function drawZoomOut(on, ctx = ctxCr) {
   const path = new Path2D();
   const x = 30
@@ -55,6 +56,7 @@ function drawZoomOut(on, ctx = ctxCr) {
   ctx.stroke(path);
   return path;
 }
+
 function drawWire( x1, y1, x2, y2, on,ctx = ctxCr) {
   const dx = Math.abs(x1 - x2)
   const dy = Math.abs(y1 - y2)
@@ -71,6 +73,7 @@ function drawWire( x1, y1, x2, y2, on,ctx = ctxCr) {
   ctx.stroke();
   ctx.strokeStyle = black;
 }
+
 function drawButton( x, y, on,ctx = ctxCr,size) {
   const path = new Path2D();
   ctx.lineWidth = 2;
@@ -85,12 +88,13 @@ function drawButton( x, y, on,ctx = ctxCr,size) {
   ctx.stroke(path);
   const line = new Path2D();
   path.addPath(line)      
-      line.moveTo(x + 30/size, y)
-      line.lineTo(x + 50/size, y)
+  line.moveTo(x + 30/size, y)
+  line.lineTo(x + 50/size, y)
   ctx.strokeStyle = white;
   ctx.stroke(line);
   return path;
 }
+
 function drawNode( x, y, on, clicked,ctx = ctxCr,size) {
   const path = new Path2D();
   path.moveTo(x, y)
@@ -100,6 +104,61 @@ function drawNode( x, y, on, clicked,ctx = ctxCr,size) {
 
   return path;
 }
+
+function drawIc(x, y, left, up, right, down, ctx = ctxCr, size, mih = 3, miw = 3, mah = 2**32, maw = 2**32) {
+  const path = new Path2D();
+  horisontal = Math.min(Math.max(up,down,miw),maw) * 8 //+ 10
+  vertical = Math.min(Math.max(left,right,mih),mah) * 8 //+ 10
+  ctx.lineWidth = 2;
+  path.moveTo(x + (horisontal+30)/size, y + vertical/size)
+  path.arcTo(x + (horisontal+30)/size, y + (vertical+30)/size, x + horisontal/size, y + (vertical+30)/size, 30 / size);
+  path.lineTo(x - horisontal/size, y + (vertical+30)/size)
+  path.arcTo(x - (horisontal+30)/size, y + (vertical+30)/size, x - (horisontal+30)/size, y + vertical/size, 30 / size);
+  path.lineTo(x - (horisontal+30)/size, y - vertical/size)
+  path.arcTo(x - (horisontal+30)/size, y - (vertical+30)/size, x - horisontal/size, y - (vertical+30)/size, 30 / size);
+  path.lineTo(x + horisontal/size, y - (vertical+30)/size)
+  path.arcTo(x + (horisontal+30)/size, y - (vertical+30)/size, x + (horisontal+30)/size, y - vertical/size, 30 / size);
+  path.lineTo(x + (horisontal+30)/size, y + vertical/size)
+  ctx.fillStyle = black
+  ctx.strokeStyle = white
+  ctx.fill(path);
+  ctx.stroke(path);
+  const line = new Path2D();
+  path.addPath(line)
+  let points = []
+  for (var i = 1; i <= left; i++) {
+    let a = Math.min(vertical-5,(left-1)*15)
+    a = (((i - 1) - (left - 1) / 2) / (left - 1)) * a * 2
+    line.moveTo(x - (horisontal+30)/size, y + a/size)
+    line.lineTo(x - (horisontal+50)/size, y + a/size)
+    points.push([x - (horisontal+50)/size, y + a/size])
+  }
+  for (var i = 1; i <= up; i++) {
+    let a = Math.min(horisontal-5,(up-1)*15)
+    a = (((i - 1) - (up - 1) / 2) / (up - 1)) * a * 2
+    line.moveTo(x + a/size, y - (vertical+30)/size)
+    line.lineTo(x + a/size, y - (vertical+50)/size)
+    points.push([x + a/size, y - (vertical+50)/size])
+  }
+  for (var i = 1; i <= right; i++) {
+    let a = Math.min(vertical-5,(right-1)*15)
+    a = (((i - 1) - (right - 1) / 2) / (right - 1)) * a * 2
+    line.moveTo(x + (horisontal+30)/size, y + a/size)
+    line.lineTo(x + (horisontal+50)/size, y + a/size)
+    points.push([x + (horisontal+50)/size, y + a/size])
+  }
+  for (var i = 1; i <= down; i++) {
+    let a = Math.min(horisontal-5,(down-1)*15)
+    a = (((i - 1) - (down - 1) / 2) / (down - 1)) * a * 2
+    line.moveTo(x + a/size, y + (vertical+30)/size)
+    line.lineTo(x + a/size, y + (vertical+50)/size)
+    points.push([x + a/size, y + (vertical+50)/size])
+  }
+  ctx.strokeStyle = white;
+  ctx.stroke(line);
+  return [path,points];
+}
+
 function drawOn(x, y,ctx=ctxCr,size) {
   const path = new Path2D();
   path.moveTo(x, y)

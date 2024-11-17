@@ -25,12 +25,11 @@ class Draw {
       var ssy = 0
       var ssz = 1
     }
-
     var arr = []
     ctx.clearRect(0, 0, c.width, c.height)
     objects.get(Connection).forEach((w) => drawWire((w.in.x - ssx)/ssz, (w.in.y - ssy)/ssz, (w.out.x - ssx)/ssz, (w.out.y - ssy)/ssz, w.on, ctx))
     objects.get(Logic).forEach((l) => {
-      eval('draw' + l.name.capitalize() + '(' + ((l.x - ssx)/ssz) + ',' + ((l.y - ssy)/ssz) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ',' + ssz + ')');
+      eval(l.function() + '(' + ((l.x - ssx)/ssz) + ',' + ((l.y - ssy)/ssz) + ',' + l.draw_type + ((l.draw_type.length == 0)? '' : ',') + ctxname + ',' + ssz + ')');
       (l.ins.concat(l.outs)).forEach((n) => {
         arr.push(n)
         drawNode((n.x - ssx)/ssz, (n.y - ssy)/ssz, n.on || n.onConnected(), n.i == node && ctxname == 'ctxCr', ctx, ssz)
@@ -58,57 +57,68 @@ class MapWithDefault extends Map {
 }
 let objs = new MapWithDefault(() => new MapWithDefault(() => []));
 let objs2 = null
+let objs2stack = []
 let map = new Map()
 map.set('off', new MapWithDefault(() => []))
 map.get('off').set('nodes', [[0, 0]])
 map.get('off').set('code', (v, l) => [[false], []])
 map.get('off').set('ins', 0)
 map.get('off').set('path', drawOff(0, 0, ctxCr, 1))
+map.get('off').set("function", "drawOff")
 map.set('on', new MapWithDefault(() => []))
 map.get('on').set('nodes', [[0, 0]])
 map.get('on').set('code', (v, l) => [[true], []])
 map.get('on').set('ins', 0)
 map.get('on').set('path', drawOn(0, 0, ctxCr, 1))
+map.get('on').set("function", "drawOn")
 map.set('buff', new MapWithDefault(() => []))
 map.get('buff').set('nodes', [[71, 40], [187, 40]])
 map.get('buff').set('code', (a, v, l) => [[a], [a]])
 map.get('buff').set('ins', 1)
 map.get('buff').set('path', drawBuff(0, 0, 0, ctxCr, 1))
+map.get('buff').set('function', "drawBuff")
 map.set('not', new MapWithDefault(() => []))
 map.get('not').set('nodes', [[71, 40], [187, 40]])
 map.get('not').set('code', (a, v, l) => [[!a], [!a]])
 map.get('not').set('ins', 1)
 map.get('not').set('path', drawNot(0, 0, 0, ctxCr, 1))
+map.get('not').set('function', "drawNot")
 map.set('or', new MapWithDefault(() => []))
 map.get('or').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('or').set('code', (a, b, v, l) => [[a || b], [a || b]])
 map.get('or').set('ins', 2)
 map.get('or').set('path', drawOr(0, 0, 0, ctxCr, 1))
+map.get('or').set('function', "drawOr")
 map.set('nor', new MapWithDefault(() => []))
 map.get('nor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nor').set('code', (a, b, v, l) => [[!(a || b)], [!(a || b)]])
 map.get('nor').set('ins', 2)
 map.get('nor').set('path', drawNor(0, 0, 0, ctxCr, 1))
+map.get('nor').set('function', "drawNor")
 map.set('and', new MapWithDefault(() => []))
 map.get('and').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('and').set('code', (a, b, v, l) => [[a && b], [a && b]])
 map.get('and').set('ins', 2)
 map.get('and').set('path', drawAnd(0, 0, 0, ctxCr, 1))
+map.get('and').set('function', "drawAnd")
 map.set('nand', new MapWithDefault(() => []))
 map.get('nand').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('nand').set('code', (a, b, v, l) => [[!(a && b)], [!(a && b)]])
 map.get('nand').set('ins', 2)
 map.get('nand').set('path', drawNand(0, 0, 0, ctxCr, 1))
+map.get('nand').set('function', "drawNand")
 map.set('xor', new MapWithDefault(() => []))
 map.get('xor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xor').set('code', (a, b, v, l) => [[(a ^ b) == 1], [(a ^ b) == 1]])
 map.get('xor').set('ins', 2)
 map.get('xor').set('path', drawXor(0, 0, 0, ctxCr, 1))
+map.get('xor').set('function', "drawXor")
 map.set('xnor', new MapWithDefault(() => []))
 map.get('xnor').set('nodes', [[71, 33], [71, 47], [187, 40]])
 map.get('xnor').set('code', (a, b, v, l) => [[(a ^ b) == 0], [(a ^ b) == 0]])
 map.get('xnor').set('ins', 2)
 map.get('xnor').set('path', drawXnor(0, 0, 0, ctxCr, 1))
+map.get('xnor').set('function', "drawXnor")
 map.set('button', new MapWithDefault(() => []))
 map.get('button').set('nodes', [[50, 0]])
 map.get('button').set('code', (v, l) => {
@@ -126,16 +136,43 @@ map.get('button').set('code', (v, l) => {
 })
 map.get('button').set('ins', 0)
 map.get('button').set('path', drawButton(0, 0, 0, ctxCr, 1))
+map.get('button').set('function', "drawButton")
 map.set('vertseg', new MapWithDefault(() => []))
 map.get('vertseg').set('nodes', [[0, 30]])
 map.get('vertseg').set('code', (a, v, l) => [[],[a == 1]])
 map.get('vertseg').set('ins', 1)
 map.get('vertseg').set('path', drawVertseg(0, 0, 0, ctxCr, 1))
+map.get('vertseg').set('function', "drawVertseg")
 map.set('horiseg', new MapWithDefault(() => []))
 map.get('horiseg').set('nodes', [[30, 0]])
 map.get('horiseg').set('code', (a, v, l) => [[],[a == 1]])
 map.get('horiseg').set('ins', 1)
 map.get('horiseg').set('path', drawHoriseg(0, 0, 0, ctxCr, 1))
+map.get('horiseg').set('function', "drawHoriseg")
+map.set('halfadder', new MapWithDefault(() => []))
+map.get('halfadder').set('nodes', drawIc(0,0,2,0,2,0,ctxCr,1)[1])
+map.get('halfadder').set('code', (a, b, v, l) => {
+  if(v.get(0) == false){
+    v.set(0,new Circruit((cir) => {
+      new Logic(cir, 'button', 0, 0)
+      new Logic(cir, 'button', 0, 100)
+      new Logic(cir, 'xor', 157, 0)
+      new Logic(cir, 'and', 157, 100)
+      new Connection(cir,objs2.get(Node)[0],objs2.get(Node)[2])
+      new Connection(cir,objs2.get(Node)[0],objs2.get(Node)[5])
+      new Connection(cir,objs2.get(Node)[1],objs2.get(Node)[3])
+      new Connection(cir,objs2.get(Node)[1],objs2.get(Node)[6])
+    }))
+  };
+  v.get(0).tick()
+  objs.get(v.get(0)).get(Logic)[0].vars.set(0,a)
+  objs.get(v.get(0)).get(Logic)[1].vars.set(0,b)
+  console.log(objs.get(v.get(0)).get(Logic))
+  return [[objs.get(v.get(0)).get(Node)[4].on,objs.get(v.get(0)).get(Node)[7].on],[2,0,2,0]]
+});
+map.get('halfadder').set('ins', 2)
+map.get('halfadder').set('path', drawIc(0,0,2,0,2,0,ctxCr,1)[0])
+map.get('halfadder').set('function', "drawIc")
 
 class Connection {
   constructor(cir, node1, node2) {
@@ -176,12 +213,16 @@ class Logic {
     cir.tick();
   }
 
+  function() {
+    return map.get(this.name).get("function")
+  }
+
   tick() {
     const out = this.block(...this.ins.map(inNode => inNode.onConnected()), this.vars, this);
     for (const [i, outNode] of this.outs.entries()) {
       outNode.on = out[0][i];
     }
-    this.draw_type = out[1]
+    this.draw_type = out[1];
   }
 
   clicked(x, y) {
@@ -278,10 +319,11 @@ class Circruit {
   }
   change(save_code) {
     this.sve = save_code;
+    objs2stack.push(objs2);
     objs2 = new MapWithDefault(() => []);
-    objs.set(this, objs2);
     this.parse(save_code);
-
+    objs.set(this, new MapWithDefault(() => [],objs2));
+    objs2 = objs2stack.pop();
   }
   add(save_code) {
     this.sve = save_code;
@@ -347,9 +389,9 @@ class Circruit {
 
 function loop(timeStamp) {
   console.log(c1.save())
-  ctxCr.canvas.width = window.innerWidth;
-  ctxCr.canvas.height = window.innerHeight - 200;
-  ctxPl.canvas.width = window.innerWidth;
+  ctxCr.canvas.width = window.innerWidth - 10;
+  ctxCr.canvas.height = window.innerHeight - 230;
+  ctxPl.canvas.width = window.innerWidth - 10;
   ctxPl.canvas.height = 200;
   lastTime = timeStamp;
   c1.tick(ticks_per_draw);
@@ -430,8 +472,8 @@ function mousedown(event) {
       els.push(els[clicked_id]);
       els.splice(clicked_id, 1);
       clicked_id = els.length - 1;
-      mx = clientX - els[clicked_id].x / sz //+ sx
-      my = clientY - els[clicked_id].y / sz //+ sy
+      mx = clientX - els[clicked_id].x / sz 
+      my = clientY - els[clicked_id].y / sz 
       whilemousedown();
       mousedownID = setInterval(whilemousedown, 16);
     }else{
